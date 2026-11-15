@@ -1,0 +1,50 @@
+// Mealie Premium Cookbook: fork-only styles.
+// Kept in its own file so merges from upstream Mealie rarely conflict.
+// Brand colours (primary, secondary, accent) come from THEME_* environment
+// variables; this file covers what those variables can't set.
+
+:root {
+  --cookbook-ivory: #faf7f2;
+  --cookbook-sage: #e5ead5;
+  --cookbook-olive: #536b32;
+  --cookbook-espresso: #322c25;
+  --cookbook-white: #ffffff;
+  --cookbook-radius: 16px;
+  --cookbook-shadow: 0 4px 16px rgba(50, 44, 37, 0.06);
+  --cookbook-serif: "Playfair Display", Georgia, serif;
+  --cookbook-sans: "Inter", system-ui, sans-serif;
+}
+
+// Warm ivory page instead of plain white (light mode only)
+.v-theme--light.v-application {
+  background-color: var(--cookbook-ivory) !important;
+  color: var(--cookbook-espresso);
+}
+
+.v-theme--light .v-navigation-drawer {
+  background-color: var(--cookbook-ivory) !important;
+}
+
+// Modern sans body text
+.v-application {
+  font-family: var(--cookbook-sans) !important;
+}
+
+// Serif display headings
+.v-application h1,
+.v-application h2,
+.v-application h3,
+.v-application .text-h1,
+.v-application .text-h2,
+.v-application .text-h3,
+.v-application .text-h4,
+.v-application .text-h5,
+.v-application .v-toolbar-title {
+  font-family: var(--cookbook-serif) !important;
+  letter-spacing: -0.01em;
+}
+
+// Softer, rounder cards
+.v-theme--light .v-card {
+  border-radius: var(--cookbook-radius);
+}

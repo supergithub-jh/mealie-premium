@@ -1,0 +1,72 @@
+# Mealie Premium Cookbook: builds the fork's Docker image and publishes it to
+# GitHub's container registry (ghcr.io/<you>/mealie-cookbook).
+#
+# Release build: push a tag named cookbook-vX.Y.Z  -> image tag vX.Y.Z
+# Test build:    Actions tab -> "Cookbook image" -> Run workflow -> image tag dev-<commit>
+name: Cookbook image
+
+on:
+  push:
+    tags:
+      - "cookbook-v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: cookbook-image-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build and publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the fork
+        uses: actions/checkout@v7
+
+      - name: Work out image name and version
+        id: v
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/cookbook-v* ]]; then
+            echo "version=${GITHUB_REF_NAME#cookbook-}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=dev-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          fi
+          # ghcr.io needs a lower-case owner name
+          echo "image=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/mealie-cookbook" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Log in to ghcr.io
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ./docker/Dockerfile
+          target: production
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.v.outputs.image }}:${{ steps.v.outputs.version }}
+          labels: |
+            org.opencontainers.image.title=mealie-cookbook
+            org.opencontainers.image.version=${{ steps.v.outputs.version }}
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+          build-args: |
+            COMMIT=${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Summary
+        run: |
+          echo "Published ${{ steps.v.outputs.image }}:${{ steps.v.outputs.version }}" >> "$GITHUB_STEP_SUMMARY"
