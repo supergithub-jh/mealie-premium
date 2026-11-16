@@ -1,4 +1,4 @@
-# Mealie Premium (Digital Cookbook): Project Handoff (v0.2.1)
+# Mealie Premium (Digital Cookbook): Project Handoff (v0.2.2)
 
 Handoff for Claude Code working in this fork. Written 2026-11-14, updated 2026-11-16 (changelog at the end).
 Loaded automatically: the first line of the root `CLAUDE.md` is `@cookbook/HANDOFF.md`.
@@ -31,6 +31,7 @@ A personal fork of [Mealie](https://github.com/mealie-recipes/mealie) that resty
 - **Fork layout (phase 2):** `frontend/app/layouts/default.vue` renders `PremiumLayout` instead of upstream's `DefaultLayout` (one-line upstream edit; upstream's layout files stay untouched). The menu is defined once in `composables/use-premium-nav.ts`, independent of upstream's layout logic. Its test (`use-premium-nav.test.ts`) fails if an upstream merge renames or moves a page a menu item links to.
 - **Wording "Collection" (v0.2.1):** the fork calls Mealie's "Cookbooks" **Collections** in all English texts. Done at load time by `lang/premium-terms.ts` (hooked into `lang/locales/en-US.ts` with a two-line upstream edit), not by editing `en-US.json`; it skips the `migration` texts (other apps' names, e.g. "Nextcloud Cookbook") and the fork's `premium` texts. `premium-terms.test.ts` fails if any English text still says "cookbook". Page addresses stay `/cookbooks`.
 - **Import page (v0.2.1):** `pages/g/[groupSlug]/r/create.vue` uses `PremiumImportToolsMenu` (always labelled "Import Tools", current tool ticked) instead of `BaseOverflowButton` (small upstream edit).
+- **Fraction quantities (v0.2.2):** `PremiumQuantityInput` (logic in `composables/use-premium-quantity.ts`, tested) replaces Mealie's number boxes for ingredient quantity (`RecipeIngredientEditor.vue`), shopping list quantity (`ShoppingListItemDetails.vue`), servings and yield (`RecipePageInfoEditor.vue`) and the servings box of the scale popup (`RecipeScaleEditButton.vue`). It accepts "3/8", "1 1/2", "1-1/2", "½", "0.375", "0,375"; stores a plain number as Mealie expects; shows common fractions back (halves to sixteenths). Small upstream edits in those four files.
 - **Naming collision:** Mealie already has a "Cookbook" feature (its name for recipe collections) under `components/Domain/Cookbook/`. Don't use `Cookbook` as a component prefix; use `Premium`.
 - **Follow upstream conventions** in the root `CLAUDE.md` (component naming, composables, i18n). New user-facing strings go through i18n with English text.
 - **The repo is public** (AGPL). Never commit secrets, API keys, IPs, domains, backups or personal recipe data.
@@ -119,7 +120,7 @@ Checks before every tag: `pnpm lint` and `pnpm test:ci` in `frontend/`, plus a v
 | Phase | Version | Scope | Status |
 | --- | --- | --- | --- |
 | 1. Setup | v0.1.x | Fork, branch, image workflow, `cookbook.scss`, palette via env, dev copy on Unraid | Done: `cookbook-v0.1.0` released and built; dev copy running with Tailscale HTTPS |
-| 2. Theme and navigation shell | v0.2.x | Sidebar (desktop), bottom tab bar (phone), top/search bar, global Vuetify theming, fonts; v0.2.1: "Collection" wording, sidebar descender fix, "Import Tools" menu | `cookbook-v0.2.0` released; v0.2.1 built, awaiting release |
+| 2. Theme and navigation shell | v0.2.x | Sidebar (desktop), bottom tab bar (phone), top/search bar, global Vuetify theming, fonts; v0.2.1: "Collection" wording, sidebar descender fix, "Import Tools" menu; v0.2.2: fraction quantities | `cookbook-v0.2.0` released; v0.2.1 and v0.2.2 built, awaiting release |
 | 3. Recipe detail and Cook mode | v0.3.x | Editorial recipe page, servings scaling, ingredient checklist, step view, cook mode with parsed timers and screen wake lock; "Generate image with AI" button (hidden until the helper exists) | Planned |
 | 4. Main screens | v0.4.x | Home page of its own (**Recipe of the Week**, Tonight, recent, quick filters), Recipes grid, Meal planner, Shopping list (incl. item-count badge on the menu) | Planned |
 | 5. AI helper | v0.5.x | Separate `mealie-ai-helper` container (section 9): video importer, AI recipe images, weekly Recipe of the Week import, AI Recipe Finder (from the web); plus an iOS Shortcut for the Share menu | Planned |
@@ -174,6 +175,7 @@ The Import screen gets Link / Photo / Video options. iOS can't share into a web 
 
 ## 11. Changelog
 
+- **v0.2.2** (2026-11-16): quantities, servings and yield accept fractions ("3/8 cup").
 - **v0.2.1** (2026-11-16): "Collection" wording via `premium-terms.ts`; "Import Tools" menu; sidebar descender fix; Recipe of the Week and AI Recipe Finder added to the plan.
 - **v0.2.0** (2026-11-16): phase 2 built (Premium layout, menu, fonts committed); branding "Mealie Premium" / "Digital Cookbook"; phase 2 decisions; phase 5 becomes `mealie-ai-helper` with AI recipe images.
 - **v0.1.2** (2026-11-16): production switched from `nightly` to `v3.31.0`.

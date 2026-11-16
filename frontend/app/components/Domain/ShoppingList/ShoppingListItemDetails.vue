@@ -1,13 +1,11 @@
 <template>
   <div class="d-flex ga-3">
-    <v-number-input
+    <!-- Mealie Premium: accepts fractions (3/8, 1 1/2) -->
+    <PremiumQuantityInput
       v-model="listItem.quantity"
       hide-details
       :label="$t('form.quantity-label-abbreviated')"
-      :min="0"
-      :precision="null"
       style="flex: 5"
-      inset
       @keydown.enter.prevent="emit('save')"
     />
     <InputLabelType

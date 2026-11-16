@@ -34,18 +34,15 @@
       <template #form>
         <div class="flex-grow-1">
           <div class="d-flex ga-2 py-2" :class="$vuetify.display.mdAndDown ? 'flex-column' : ''">
-            <v-number-input
+            <!-- Mealie Premium: accepts fractions (3/8, 1 1/2) -->
+            <PremiumQuantityInput
               v-model="model.quantity"
               variant="filled"
-              :precision="null"
-              :min="0"
               hide-details
-              inset
               density="compact"
               :style="$vuetify.display.mdAndDown ? '' : 'flex: 3 0 50px;'"
               :placeholder="$t('recipe.quantity')"
               :autofocus="autofocusQuantity"
-              @keypress="quantityFilter"
               @update:focused="onQuantityFocused"
             />
             <v-autocomplete
@@ -473,12 +470,6 @@ function onQuantityFocused(focused: boolean) {
   const input = document.activeElement;
   if (input instanceof HTMLInputElement) {
     nextTick(() => input.select());
-  }
-}
-
-function quantityFilter(e: KeyboardEvent) {
-  if (e.key === "-" || e.key === "+" || e.key === "e") {
-    e.preventDefault();
   }
 }
 </script>

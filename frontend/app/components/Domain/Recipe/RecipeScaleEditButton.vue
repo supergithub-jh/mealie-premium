@@ -63,12 +63,10 @@
             </v-card-title>
             <v-card-text class="mt-n5">
               <div class="mt-4 d-flex align-center">
-                <v-number-input
+                <!-- Mealie Premium: accepts fractions -->
+                <PremiumQuantityInput
                   :model-value="yieldQuantity"
-                  :precision="null"
-                  :min="0"
                   variant="underlined"
-                  control-variant="hidden"
                   @update:model-value="recalculateScale($event || 0)"
                 />
                 <v-tooltip

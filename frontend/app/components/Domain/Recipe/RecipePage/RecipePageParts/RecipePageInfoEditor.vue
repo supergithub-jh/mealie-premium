@@ -11,27 +11,20 @@
     <v-container class="ma-0 pa-0">
       <v-row>
         <v-col cols="3">
-          <v-number-input
-            :model-value="recipe.recipeServings"
-            :min="0"
-            :precision="null"
+          <!-- Mealie Premium: servings and yield accept fractions -->
+          <PremiumQuantityInput
+            v-model="recipe.recipeServings"
             density="compact"
             :label="$t('recipe.servings')"
             variant="underlined"
-            control-variant="hidden"
-            @update:model-value="recipe.recipeServings = $event"
           />
         </v-col>
         <v-col cols="3">
-          <v-number-input
-            :model-value="recipe.recipeYieldQuantity"
-            :min="0"
-            :precision="null"
+          <PremiumQuantityInput
+            v-model="recipe.recipeYieldQuantity"
             density="compact"
             :label="$t('recipe.yield')"
             variant="underlined"
-            control-variant="hidden"
-            @update:model-value="recipe.recipeYieldQuantity = $event"
           />
         </v-col>
         <v-col cols="6">
