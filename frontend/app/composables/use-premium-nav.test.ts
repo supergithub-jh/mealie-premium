@@ -3,7 +3,7 @@
 import { existsSync, readdirSync } from "fs";
 import path from "path";
 import { describe, expect, test } from "vitest";
-import { buildPremiumNav } from "./use-premium-nav";
+import { buildPremiumNav, hasPermission, isSettingsPath } from "./use-premium-nav";
 
 const pagesDir = path.resolve(__dirname, "../pages");
 
@@ -39,7 +39,7 @@ function resolvePage(urlPath: string): string | null {
 }
 
 const nav = buildPremiumNav("demo-group", key => key, { aiImport: true });
-const allLinks = [...nav.sidebar, ...nav.tabs, ...nav.more, ...nav.create];
+const allLinks = [...nav.sidebar, ...nav.tabs, ...nav.more, ...nav.create, ...nav.settings];
 
 describe("Premium navigation", () => {
   test.each(allLinks.map(l => [l.key, l.to]))("%s link (%s) points to an existing page", (_key, to) => {
@@ -59,6 +59,22 @@ describe("Premium navigation", () => {
     expect(home.match!("/g/demo-group")).toBe(true);
     expect(recipes.match!("/g/demo-group/r/lemon-herb-salmon")).toBe(true);
     expect(recipes.match!("/g/demo-group/r/create/url")).toBe(false);
+  });
+
+  test("Settings menu keeps Mealie's three entries, shown by permission", () => {
+    const keys = (user: { admin?: boolean; canOrganize?: boolean } | null) =>
+      nav.settings.filter(l => hasPermission(l, user)).map(l => l.key);
+    expect(keys({ admin: true, canOrganize: true })).toEqual(["user-settings", "data-management", "admin-settings"]);
+    expect(keys({ canOrganize: true })).toEqual(["user-settings", "data-management"]);
+    expect(keys({})).toEqual(["user-settings"]);
+  });
+
+  test("Settings is highlighted on settings pages, not on the meal planner", () => {
+    expect(isSettingsPath("/admin/site-settings")).toBe(true);
+    expect(isSettingsPath("/group/data/foods")).toBe(true);
+    expect(isSettingsPath("/user/profile")).toBe(true);
+    expect(isSettingsPath("/household/mealplan/planner/view")).toBe(false);
+    expect(isSettingsPath("/user/abc/favorites")).toBe(false);
   });
 
   test("AI import only appears when AI is enabled", () => {

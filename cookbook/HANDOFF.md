@@ -1,4 +1,4 @@
-# Mealie Premium (Digital Cookbook): Project Handoff (v0.2.2)
+# Mealie Premium (Digital Cookbook): Project Handoff (v0.2.3)
 
 Handoff for Claude Code working in this fork. Written 2026-11-14, updated 2026-11-16 (changelog at the end).
 Loaded automatically: the first line of the root `CLAUDE.md` is `@cookbook/HANDOFF.md`.
@@ -59,7 +59,7 @@ Dark mode: primary `#A3B86C`, secondary `#E5EAD5`, on Mealie's dark background.
 **Layout:**
 - Desktop/tablet: a light left sidebar (Home, Recipes, Planner, Shopping List, Collections, Settings), with a search bar on top.
 - Phone **and portrait tablet** (< 960px, Vuetify `mdAndUp` false): a bottom tab bar with 5 items (Home, Recipes, Planner, List, Collections) and a compact top bar. Import, Recipe Finder, Timeline, organizers and the individual collections are in the profile menu.
-- Desktop sidebar: Home, Recipes, Collections, Meal Planner, Shopping List, Import, a collapsed "More" group, Settings at the bottom. Top bar: search (opens Mealie's search dialog, `/` shortcut), "+ Add Recipe" menu, profile menu.
+- Desktop sidebar: Home, Recipes, Collections, Meal Planner, Shopping List, Import, a collapsed "More" group, Settings at the bottom. **Settings is a menu** (as in upstream): User Settings, Data Management (organizers), Admin Settings (admins → `/admin/site-settings`); the same entries are in the profile menu. Admin pages keep upstream's `admin` layout (its own sidebar), restyled only by colours and fonts. Top bar: search (opens Mealie's search dialog, `/` shortcut), "+ Add Recipe" menu, profile menu.
 - Until phase 4, **Home opens the recipe list** (same page as Recipes); only Home is highlighted there.
 - Same look on both, different layout. Use Vuetify's display breakpoints (`useDisplay`).
 
@@ -120,7 +120,7 @@ Checks before every tag: `pnpm lint` and `pnpm test:ci` in `frontend/`, plus a v
 | Phase | Version | Scope | Status |
 | --- | --- | --- | --- |
 | 1. Setup | v0.1.x | Fork, branch, image workflow, `cookbook.scss`, palette via env, dev copy on Unraid | Done: `cookbook-v0.1.0` released and built; dev copy running with Tailscale HTTPS |
-| 2. Theme and navigation shell | v0.2.x | Sidebar (desktop), bottom tab bar (phone), top/search bar, global Vuetify theming, fonts; v0.2.1: "Collection" wording, sidebar descender fix, "Import Tools" menu; v0.2.2: fraction quantities | `cookbook-v0.2.0` released; v0.2.1 and v0.2.2 built, awaiting release |
+| 2. Theme and navigation shell | v0.2.x | Sidebar (desktop), bottom tab bar (phone), top/search bar, global Vuetify theming, fonts; v0.2.1: "Collection" wording, sidebar descender fix, "Import Tools" menu; v0.2.2: fraction quantities; v0.2.3: Settings menu restored (Admin Settings, Data Management) | `cookbook-v0.2.0` released; v0.2.1–v0.2.3 built, awaiting release |
 | 3. Recipe detail and Cook mode | v0.3.x | Editorial recipe page, servings scaling, ingredient checklist, step view, cook mode with parsed timers and screen wake lock; "Generate image with AI" button (hidden until the helper exists) | Planned |
 | 4. Main screens | v0.4.x | Home page of its own (**Recipe of the Week**, Tonight, recent, quick filters), Recipes grid, Meal planner, Shopping list (incl. item-count badge on the menu) | Planned |
 | 5. AI helper | v0.5.x | Separate `mealie-ai-helper` container (section 9): video importer, AI recipe images, weekly Recipe of the Week import, AI Recipe Finder (from the web); plus an iOS Shortcut for the Share menu | Planned |
@@ -175,6 +175,7 @@ The Import screen gets Link / Photo / Video options. iOS can't share into a web 
 
 ## 11. Changelog
 
+- **v0.2.3** (2026-11-16): Settings is a menu again (User Settings, Data Management, Admin Settings by permission); fixes Site Settings being unreachable since v0.2.0.
 - **v0.2.2** (2026-11-16): quantities, servings and yield accept fractions ("3/8 cup").
 - **v0.2.1** (2026-11-16): "Collection" wording via `premium-terms.ts`; "Import Tools" menu; sidebar descender fix; Recipe of the Week and AI Recipe Finder added to the plan.
 - **v0.2.0** (2026-11-16): phase 2 built (Premium layout, menu, fonts committed); branding "Mealie Premium" / "Digital Cookbook"; phase 2 decisions; phase 5 becomes `mealie-ai-helper` with AI recipe images.

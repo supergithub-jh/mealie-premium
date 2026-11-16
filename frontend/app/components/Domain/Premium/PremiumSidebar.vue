@@ -60,14 +60,36 @@
         nav
         class="premium-nav px-4"
       >
-        <v-list-item
-          v-if="loggedIn"
-          to="/user/profile"
-          :active="$route.path.startsWith('/user/profile') || $route.path.startsWith('/admin')"
-          :prepend-icon="mdiCogOutline"
-          :title="$t('general.settings')"
-          rounded="lg"
-        />
+        <!-- Settings menu: User Settings, Data Management, Admin Settings (by permission) -->
+        <v-menu
+          v-if="nav.settings.length"
+          location="end bottom"
+          :offset="12"
+        >
+          <template #activator="{ props: menuProps }">
+            <v-list-item
+              v-bind="menuProps"
+              value="settings"
+              :active="inSettings"
+              :prepend-icon="mdiCogOutline"
+              :title="$t('general.settings')"
+              rounded="lg"
+            />
+          </template>
+          <v-list
+            density="comfortable"
+            min-width="230"
+            class="premium-menu"
+          >
+            <v-list-item
+              v-for="link in nav.settings"
+              :key="link.key"
+              :to="link.to"
+              :prepend-icon="link.icon"
+              :title="link.title"
+            />
+          </v-list>
+        </v-menu>
       </v-list>
       <svg
         class="premium-sidebar__leaf"
@@ -97,10 +119,8 @@
 <script setup lang="ts">
 import { mdiCogOutline, mdiDotsHorizontal } from "@mdi/js";
 import { usePremiumNav } from "~/composables/use-premium-nav";
-import { useLoggedInState } from "~/composables/use-logged-in-state";
 
-const { nav, collections, groupSlug, isActive } = usePremiumNav();
-const { loggedIn } = useLoggedInState();
+const { nav, collections, groupSlug, isActive, inSettings } = usePremiumNav();
 
 const homeLink = computed(() => (groupSlug.value ? `/g/${groupSlug.value}` : "/"));
 const moreLinks = computed(() => [...nav.value.more, ...collections.value]);

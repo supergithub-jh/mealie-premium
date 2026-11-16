@@ -64,9 +64,11 @@
 
         <v-divider class="my-1" />
         <v-list-item
-          :prepend-icon="mdiCogOutline"
-          :title="$t('general.settings')"
-          to="/user/profile"
+          v-for="link in nav.settings"
+          :key="link.key"
+          :prepend-icon="link.icon"
+          :title="link.title"
+          :to="link.to"
         />
         <v-list-item
           v-if="announcementsEnabled"
@@ -108,7 +110,6 @@
 import {
   mdiAccountOutline,
   mdiBullhornOutline,
-  mdiCogOutline,
   mdiHeartOutline,
   mdiLogout,
   mdiTranslate,

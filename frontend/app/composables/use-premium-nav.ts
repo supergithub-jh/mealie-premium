@@ -3,6 +3,7 @@
 // it only relies on page addresses (checked by use-premium-nav.test.ts) and the
 // cookbook store.
 import {
+  mdiAccountCogOutline,
   mdiAutoFix,
   mdiBookOpenPageVariantOutline,
   mdiCalendarMonthOutline,
@@ -15,9 +16,11 @@ import {
   mdiShapeOutline,
   mdiSilverwareForkKnife,
   mdiSquareEditOutline,
+  mdiTableEdit,
   mdiTagMultipleOutline,
   mdiTimelineText,
   mdiTrayArrowDown,
+  mdiWrenchOutline,
 } from "@mdi/js";
 import { useLoggedInState } from "~/composables/use-logged-in-state";
 import { useGroupSelf } from "~/composables/use-groups";
@@ -35,6 +38,8 @@ export interface PremiumNavLink {
   restricted: boolean;
   /** Which page addresses count as "this item is active" */
   match?: (path: string) => boolean;
+  /** Extra permission needed, on top of being logged in */
+  requires?: "admin" | "organizer";
 }
 
 export interface PremiumNav {
@@ -42,6 +47,30 @@ export interface PremiumNav {
   tabs: PremiumNavLink[];
   more: PremiumNavLink[];
   create: PremiumNavLink[];
+  /** The Settings menu (sidebar and profile menu), as in Mealie's own sidebar */
+  settings: PremiumNavLink[];
+}
+
+export interface PremiumNavUser {
+  admin?: boolean;
+  canOrganize?: boolean;
+}
+
+/** Whether a user may see a link that needs extra permission. */
+export function hasPermission(link: PremiumNavLink, user: PremiumNavUser | null | undefined): boolean {
+  if (link.requires === "admin") {
+    return !!user?.admin;
+  }
+  if (link.requires === "organizer") {
+    return !!user?.canOrganize;
+  }
+  return true;
+}
+
+/** Pages that count as "in Settings" for highlighting the sidebar item. */
+export function isSettingsPath(path: string): boolean {
+  return ["/user/profile", "/group", "/household", "/admin"].some(p => path === p || path.startsWith(`${p}/`))
+    && !path.startsWith("/household/mealplan/planner");
 }
 
 type Translate = (key: string) => string;
@@ -140,11 +169,18 @@ export function buildPremiumNav(groupSlug: string, t: Translate, opts: { aiImpor
     },
   ];
 
+  const settings: PremiumNavLink[] = [
+    { key: "user-settings", title: t("profile.user-settings"), icon: mdiAccountCogOutline, to: "/user/profile", restricted: false },
+    { key: "data-management", title: t("data-pages.data-management"), icon: mdiTableEdit, to: "/group/data", restricted: false, requires: "organizer" },
+    { key: "admin-settings", title: t("settings.admin-settings"), icon: mdiWrenchOutline, to: "/admin/site-settings", restricted: false, requires: "admin" },
+  ];
+
   return {
     sidebar: [home, recipes, collections, planner, list, importLink],
     tabs: [home, recipes, planner, list, collections],
     more,
     create,
+    settings,
   };
 }
 
@@ -160,12 +196,14 @@ export function usePremiumNav() {
 
   const nav = computed(() => {
     const all = buildPremiumNav(groupSlug.value, key => i18n.t(key), { aiImport: aiImport.value });
-    const allowed = (link: PremiumNavLink) => !link.restricted || isOwnGroup.value;
+    const allowed = (link: PremiumNavLink) =>
+      (!link.restricted || isOwnGroup.value) && hasPermission(link, auth.user.value);
     return {
       sidebar: all.sidebar.filter(allowed),
       tabs: all.tabs.filter(allowed),
       more: all.more.filter(allowed),
       create: all.create.filter(allowed),
+      settings: auth.user.value ? all.settings.filter(allowed) : [],
     };
   });
 
@@ -189,5 +227,7 @@ export function usePremiumNav() {
     return link.match ? link.match(route.path) : route.path === link.to;
   }
 
-  return { nav, collections, groupSlug, isActive };
+  const inSettings = computed(() => isSettingsPath(route.path));
+
+  return { nav, collections, groupSlug, isActive, inSettings };
 }
