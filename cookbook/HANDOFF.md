@@ -1,4 +1,4 @@
-# Mealie Premium Cookbook: Project Handoff (v0.1.1)
+# Mealie Premium Cookbook: Project Handoff (v0.1.2)
 
 Handoff for Claude Code working in this fork. Written 2026-11-14, updated 2026-11-16 (changelog at the end).
 Loaded automatically: the first line of the root `CLAUDE.md` is `@cookbook/HANDOFF.md`.
@@ -96,7 +96,7 @@ Design around the real data:
 
 | Environment | Where | Notes |
 | --- | --- | --- |
-| Production | Official Mealie image on Unraid, behind the owner's Pangolin reverse proxy (HTTPS). Being moved from `nightly` to the pinned release `v3.31.0` (section 10) | Never touched by this project until cutover; at cutover only the image changes, Pangolin setup stays |
+| Production | Official Mealie image `v3.31.0` (pinned release, matches the fork's base) on Unraid, behind the owner's Pangolin reverse proxy (HTTPS) | Never touched by this project until cutover; at cutover only the image changes, Pangolin setup stays |
 | Dev copy | `mealie-cookbook-dev` compose stack on Unraid (Compose Manager plugin), image `mealie-cookbook:vX.Y.Z`, SQLite. LAN: `http://<unraid-ip>:9926`. HTTPS: `https://<unraid-tailscale-name>:8443` via `tailscale serve` | Shown as "Mealie Dev" (`BRANDING_NAME`). Not on Pangolin. `BASE_URL` is the Tailscale address. Seeded from a production backup; disable all webhooks and notifiers after **every** restore |
 | Local frontend dev | `cd frontend && API_URL=http://<unraid-ip>:9926 pnpm dev` | Live reload against the dev copy's API |
 
@@ -137,10 +137,11 @@ The Import screen gets Link / Photo / Video options. iOS can't share into a web 
 - Pantry: deferred to a separate future project; it would need backend work.
 
 **Decided:**
-- Production moves from `nightly` to pinned release tags, starting with `v3.31.0`, and follows the fork's base release from then on. Reason: `nightly` can add database migrations the fork doesn't have yet, after which production backups no longer restore into the dev copy. (On 2026-11-15 `nightly` had no migrations beyond `v3.31.0`, so the switch is safe.) Status: owner to change the image tag on Unraid.
+- Production moves from `nightly` to pinned release tags, starting with `v3.31.0`, and follows the fork's base release from then on. Reason: `nightly` can add database migrations the fork doesn't have yet, after which production backups no longer restore into the dev copy. (On 2026-11-15 `nightly` had no migrations beyond `v3.31.0`, so the switch is safe.) Status: done 2026-11-16, production runs `v3.31.0`.
 - The dev copy stays off Pangolin; remote access is through Tailscale.
 
 ## 11. Changelog
 
+- **v0.1.2** (2026-11-16): production switched from `nightly` to `v3.31.0`.
 - **v0.1.1** (2026-11-16): phase 1 done; repo name; GitHub Actions setup and release process (owner creates tags in the web UI); dev copy details (compose stack, Tailscale HTTPS, "Mealie Dev", webhook rule); PWA notes; production pinned to release tags.
 - **v0.1.0** (2026-11-14): first handoff.
