@@ -1,7 +1,37 @@
-// Mealie Premium Cookbook: fork-only styles.
+// Mealie Premium (Digital Cookbook): fork-only styles.
 // Kept in its own file so merges from upstream Mealie rarely conflict.
 // Brand colours (primary, secondary, accent) come from THEME_* environment
 // variables; this file covers what those variables can't set.
+//
+// Fonts: Inter and Playfair Display (SIL Open Font License, licences next to
+// the files) are committed in public/fonts/premium/ and declared below. Nothing
+// is downloaded at build or run time, so the app works offline and the build
+// doesn't depend on font services. Source: @fontsource-variable/* 5.3.0 on npm.
+
+$premium-latin:
+  U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC,
+  U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+$premium-latin-ext:
+  U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F,
+  U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+
+@mixin premium-font($family, $file, $style, $range) {
+  @font-face {
+    font-family: $family;
+    font-style: $style;
+    font-display: swap;
+    font-weight: 100 900;
+    src: url("/fonts/premium/#{$file}.woff2") format("woff2-variations");
+    unicode-range: $range;
+  }
+}
+
+@include premium-font("Inter", "inter-latin-wght-normal", normal, $premium-latin);
+@include premium-font("Inter", "inter-latin-ext-wght-normal", normal, $premium-latin-ext);
+@include premium-font("Inter", "inter-latin-wght-italic", italic, $premium-latin);
+@include premium-font("Playfair Display", "playfair-display-latin-wght-normal", normal, $premium-latin);
+@include premium-font("Playfair Display", "playfair-display-latin-ext-wght-normal", normal, $premium-latin-ext);
+@include premium-font("Playfair Display", "playfair-display-latin-wght-italic", italic, $premium-latin);
 
 :root {
   --cookbook-ivory: #faf7f2;
@@ -15,6 +45,27 @@
   --cookbook-sans: "Inter", system-ui, sans-serif;
 }
 
+// ---------------------------------------------------------------- Type
+
+.v-application {
+  font-family: "Inter", system-ui, sans-serif !important;
+}
+
+.v-application h1,
+.v-application h2,
+.v-application h3,
+.v-application .text-h1,
+.v-application .text-h2,
+.v-application .text-h3,
+.v-application .text-h4,
+.v-application .text-h5,
+.v-application .v-toolbar-title {
+  font-family: "Playfair Display", Georgia, serif !important;
+  letter-spacing: -0.01em;
+}
+
+// ---------------------------------------------------------------- Surfaces
+
 // Warm ivory page instead of plain white (light mode only)
 .v-theme--light.v-application {
   background-color: var(--cookbook-ivory) !important;
@@ -25,26 +76,94 @@
   background-color: var(--cookbook-ivory) !important;
 }
 
-// Modern sans body text
-.v-application {
-  font-family: var(--cookbook-sans) !important;
-}
-
-// Serif display headings
-.v-application h1,
-.v-application h2,
-.v-application h3,
-.v-application .text-h1,
-.v-application .text-h2,
-.v-application .text-h3,
-.v-application .text-h4,
-.v-application .text-h5,
-.v-application .v-toolbar-title {
-  font-family: var(--cookbook-serif) !important;
-  letter-spacing: -0.01em;
-}
-
 // Softer, rounder cards
-.v-theme--light .v-card {
+.v-application .v-card {
   border-radius: var(--cookbook-radius);
+}
+
+.v-theme--light .v-card--variant-elevated {
+  box-shadow: var(--cookbook-shadow) !important;
+}
+
+// Dialogs, menus and sheets match the card shape
+.v-application .v-overlay__content > .v-card,
+.v-application .v-menu > .v-overlay__content {
+  border-radius: var(--cookbook-radius);
+}
+
+// Pill-shaped buttons (not icon buttons, button groups or the tab bar)
+.v-application .v-btn:not(.v-btn--icon):not(.v-btn-group .v-btn):not(.v-bottom-navigation .v-btn) {
+  border-radius: 999px;
+}
+
+// ---------------------------------------------------------------- Premium shell
+
+.premium-topbar.v-app-bar {
+  background: transparent !important;
+}
+
+.v-theme--light .premium-topbar.v-app-bar {
+  background: var(--cookbook-ivory) !important;
+}
+
+.premium-sidebar {
+  border-right: 1px solid rgba(var(--v-border-color), 0.08) !important;
+}
+
+// Sidebar items: roomy, with a sage pill for the active page
+.premium-nav .v-list-item {
+  min-height: 44px;
+  margin-bottom: 4px;
+}
+
+.premium-nav .v-list-item-title {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.premium-nav .v-list-item--active {
+  color: rgb(var(--v-theme-primary));
+}
+
+.premium-nav .v-list-item--active .v-list-item-title {
+  font-weight: 600;
+}
+
+.premium-nav .v-list-item--active > .v-list-item__overlay {
+  opacity: 0 !important;
+}
+
+.v-theme--light .premium-nav .v-list-item--active {
+  background-color: var(--cookbook-sage);
+}
+
+.v-theme--dark .premium-nav .v-list-item--active {
+  background-color: rgba(var(--v-theme-primary), 0.16);
+}
+
+// Phone tab bar
+.premium-bottom-nav {
+  border-top: 1px solid rgba(var(--v-border-color), 0.08);
+  box-shadow: 0 -4px 16px rgba(50, 44, 37, 0.05) !important;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.premium-bottom-nav .v-btn {
+  font-size: 0.72rem;
+  letter-spacing: 0;
+}
+
+// Active tab: olive icon and label, no grey block behind it
+.premium-bottom-nav .v-btn--selected > .v-btn__overlay,
+.premium-bottom-nav .v-btn--active > .v-btn__overlay {
+  opacity: 0 !important;
+}
+
+.premium-bottom-nav .v-btn--selected {
+  font-weight: 600;
+}
+
+// Menus opened from the top bar
+.premium-menu {
+  border-radius: var(--cookbook-radius) !important;
 }
