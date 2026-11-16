@@ -1,4 +1,6 @@
 // File was already correctly named
+import { applyPremiumTerms } from "../premium-terms"; // Mealie Premium wording
+
 export default defineI18nLocale(async () => {
   const { en: $vuetify } = await import("vuetify/locale");
   const { default: enUS } = await import("../messages/en-US.json");
@@ -6,7 +8,7 @@ export default defineI18nLocale(async () => {
     "../../../../mealie/repos/seed/resources/units/locales/en-US.json",
   );
   return {
-    ...enUS,
+    ...applyPremiumTerms(enUS),
     "unit-names": unitNames,
     $vuetify,
   };

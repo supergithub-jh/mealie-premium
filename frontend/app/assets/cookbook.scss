@@ -116,9 +116,13 @@ $premium-latin-ext:
   margin-bottom: 4px;
 }
 
+// Vuetify's nav titles use a tight line height and clip overflow, which cut
+// off descenders (p, g, q) in Inter. Give the text room.
 .premium-nav .v-list-item-title {
   font-size: 1rem;
   font-weight: 500;
+  line-height: 1.5 !important;
+  padding-bottom: 1px;
 }
 
 .premium-nav .v-list-item--active {

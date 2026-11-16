@@ -17,9 +17,9 @@
           <div class="flex-1-1 d-flex flex-column justify-center align-center ga-2">
             <p>{{ $t('recipe.select-one-of-the-various-ways-to-create-a-recipe') }}</p>
             <div class="ml-auto">
-              <BaseOverflowButton
+              <!-- Mealie Premium: fixed "Import Tools" label instead of BaseOverflowButton -->
+              <PremiumImportToolsMenu
                 v-model="subpage"
-                rounded
                 :items="subpages"
               />
             </div>
