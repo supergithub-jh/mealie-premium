@@ -1,14 +1,15 @@
-# Mealie Premium Cookbook: Project Handoff (v0.1.0)
+# Mealie Premium Cookbook: Project Handoff (v0.1.1)
 
-Handoff for Claude Code working in this fork. Written 2026-11-14.
-Save in the repo as `cookbook/HANDOFF.md` and add `@cookbook/HANDOFF.md` as the first line of `CLAUDE.md`, so it loads automatically.
+Handoff for Claude Code working in this fork. Written 2026-11-14, updated 2026-11-16 (changelog at the end).
+Loaded automatically: the first line of the root `CLAUDE.md` is `@cookbook/HANDOFF.md`.
 
 ## 1. What this project is
 
 A personal fork of [Mealie](https://github.com/mealie-recipes/mealie) that restyles the web app into a warm, editorial, cookbook-like experience ("Premium Cookbook"). It is for one household, running on the owner's Unraid server.
 
 - **Base:** Mealie release `v3.31.0` (Nuxt 4 + Vue 3 + Vuetify frontend, FastAPI backend).
-- **Branch:** `feature/premium-cookbook`.
+- **Repo:** `supergithub-jh/mealie-premium` (GitHub fork).
+- **Branch:** `feature/premium-cookbook`, which is also the fork's default branch. Upstream's `mealie-next` stays in the fork untouched; never build on it.
 - **Scope:** the frontend only. Mealie's backend, API and database stay exactly as upstream.
 
 ## 2. Working agreement with the owner
@@ -80,17 +81,30 @@ Design around the real data:
 | Handed-over files | name + `-vX.Y.Z` | `mealie-cookbook-dev-v0.2.0.yml` |
 | Phases | minor version | phase 2 = `v0.2.x` |
 
-`.github/workflows/cookbook-image.yml` builds on `cookbook-v*` tags (amd64 only) and can also be run by hand, which produces a `dev-<sha>` tag. The upstream Mealie workflows are disabled in the fork.
+`.github/workflows/cookbook-image.yml` builds on `cookbook-v*` tags (amd64 only) and can also be run by hand, which produces a `dev-<sha>` tag. The image package on ghcr.io is **public**, so Unraid pulls it without logging in.
 
-**Upstream updates:** about once a month, `git fetch upstream --tags`, then merge the newest **release tag** (never `mealie-next`), test, and tag a patch version. Before restoring a production backup into a fork build, confirm production's Mealie version is not ahead of the fork's base in database migrations (`mealie/alembic/versions`).
+**GitHub Actions setup (done in the GitHub web UI, not in files):**
+- Actions are enabled. These 12 upstream workflows are **disabled** (Actions tab → workflow → ⋯ → Disable): Auto-merge dependency PRs, Auto-merge l10n PRs, CodeQL, Deploy Documentation, Automatic Locale Sync, Docker Nightly Production, Pull Request Linter, PR CI, Release Drafter, Docker Build Production, Scheduled Checks, Stale.
+- The remaining upstream workflows (Backend/Frontend Lint and Test, Build Containers, Build Package, E2E Tests, Trivy Container Scanning) are `workflow_call` only; they can't start on their own, so they stay enabled.
+- Don't delete or edit upstream workflow files; disabling them in the UI avoids merge conflicts.
+
+**Making a release:** Claude Code cloud sessions can push branches but **not tags**. So the owner creates each release in the GitHub web UI: Releases → Draft a new release → tag `cookbook-vX.Y.Z` (create on publish) → target `feature/premium-cookbook` → Publish. That starts the image build. Claude prepares the commit, checks and release notes beforehand.
+
+**Upstream updates:** about once a month, add upstream if missing (`git remote add upstream https://github.com/mealie-recipes/mealie`), `git fetch upstream --tags`, then merge the newest **release tag** (never `mealie-next`), test, and release a patch version. Production is moved to the same Mealie release at the same time (section 7). Before restoring a production backup into a fork build, confirm production's Mealie version is not ahead of the fork's base in database migrations (`mealie/alembic/versions`).
 
 ## 7. Environments
 
 | Environment | Where | Notes |
 | --- | --- | --- |
-| Production | Official Mealie `nightly` image on Unraid, behind the owner's reverse proxy | Never touched by this project until cutover |
-| Dev copy | `mealie-cookbook-dev` container on Unraid, port 9926, LAN only, SQLite | Seeded from a production backup; notifiers and webhooks disabled |
+| Production | Official Mealie image on Unraid, behind the owner's Pangolin reverse proxy (HTTPS). Being moved from `nightly` to the pinned release `v3.31.0` (section 10) | Never touched by this project until cutover; at cutover only the image changes, Pangolin setup stays |
+| Dev copy | `mealie-cookbook-dev` compose stack on Unraid (Compose Manager plugin), image `mealie-cookbook:vX.Y.Z`, SQLite. LAN: `http://<unraid-ip>:9926`. HTTPS: `https://<unraid-tailscale-name>:8443` via `tailscale serve` | Shown as "Mealie Dev" (`BRANDING_NAME`). Not on Pangolin. `BASE_URL` is the Tailscale address. Seeded from a production backup; disable all webhooks and notifiers after **every** restore |
 | Local frontend dev | `cd frontend && API_URL=http://<unraid-ip>:9926 pnpm dev` | Live reload against the dev copy's API |
+
+The dev compose file is a handed-over file (`mealie-cookbook-dev-vX.Y.Z.yml`, latest v0.1.1), not committed to the repo.
+
+**HTTPS matters for testing:** Mealie's "Secure Site" check, clipboard (copy buttons) and installing as a phone app (PWA) only work over HTTPS. Test those on the Tailscale address, not the LAN one.
+
+**PWA:** Mealie already ships a PWA manifest (served by the backend). Its app colour follows `THEME_LIGHT_PRIMARY` and its name follows `BRANDING_NAME`. The splash background colour is hard-coded in the backend, so it stays as upstream. Custom icons are possible later as a frontend change.
 
 Checks before every tag: `pnpm lint` and `pnpm test:ci` in `frontend/`, plus a visual check at phone (390px), tablet and desktop widths, in light and dark mode.
 
@@ -98,7 +112,7 @@ Checks before every tag: `pnpm lint` and `pnpm test:ci` in `frontend/`, plus a v
 
 | Phase | Version | Scope | Status |
 | --- | --- | --- | --- |
-| 1. Setup | v0.1.x | Fork, branch, image workflow, `cookbook.scss`, palette via env, dev copy on Unraid | Patch ready (`mealie-cookbook-phase1-v0.1.0.patch`); not yet built |
+| 1. Setup | v0.1.x | Fork, branch, image workflow, `cookbook.scss`, palette via env, dev copy on Unraid | Done: `cookbook-v0.1.0` released and built; dev copy running with Tailscale HTTPS |
 | 2. Theme and navigation shell | v0.2.x | Sidebar (desktop), bottom tab bar (phone), top/search bar, global Vuetify theming, fonts | Next |
 | 3. Recipe detail and Cook mode | v0.3.x | Editorial recipe page, servings scaling, ingredient checklist, step view, cook mode with parsed timers and screen wake lock | Planned |
 | 4. Main screens | v0.4.x | Home (Tonight / Recipe of the Day, recent, quick filters), Recipes grid, Meal planner, Shopping list | Planned |
@@ -119,6 +133,14 @@ The Import screen gets Link / Photo / Video options. iOS can't share into a web 
 
 ## 10. Open decisions
 
-- The 5th phone tab: Collections or Import (phase 2).
-- Whether to switch production from `nightly` to release tags (recommended).
+- The 5th phone tab: Collections or Import (phase 2). Suggested: Collections until the importer exists (phase 5), then Import.
 - Pantry: deferred to a separate future project; it would need backend work.
+
+**Decided:**
+- Production moves from `nightly` to pinned release tags, starting with `v3.31.0`, and follows the fork's base release from then on. Reason: `nightly` can add database migrations the fork doesn't have yet, after which production backups no longer restore into the dev copy. (On 2026-11-15 `nightly` had no migrations beyond `v3.31.0`, so the switch is safe.) Status: owner to change the image tag on Unraid.
+- The dev copy stays off Pangolin; remote access is through Tailscale.
+
+## 11. Changelog
+
+- **v0.1.1** (2026-11-16): phase 1 done; repo name; GitHub Actions setup and release process (owner creates tags in the web UI); dev copy details (compose stack, Tailscale HTTPS, "Mealie Dev", webhook rule); PWA notes; production pinned to release tags.
+- **v0.1.0** (2026-11-14): first handoff.
