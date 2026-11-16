@@ -1,4 +1,4 @@
-# Mealie Premium (Digital Cookbook): Project Handoff (v0.2.3)
+# Mealie Premium (Digital Cookbook): Project Handoff (v0.2.4)
 
 Handoff for Claude Code working in this fork. Written 2026-11-14, updated 2026-11-16 (changelog at the end).
 Loaded automatically: the first line of the root `CLAUDE.md` is `@cookbook/HANDOFF.md`.
@@ -18,7 +18,8 @@ A personal fork of [Mealie](https://github.com/mealie-recipes/mealie) that resty
 1. **Describe before building.** Before creating or changing files, state what you plan to build and wait for the owner's approval.
 2. **Versions in names.** Every standalone file handed to the owner (patches, compose files, docs, scripts) carries a version in its name, e.g. `mealie-cookbook-dev-v0.2.0.yml`. Bump the version on every change.
 3. **Files inside the repo are not renamed per version.** They are versioned through Git tags and image tags instead (section 6).
-4. **Plain language.** The owner is technical (Unraid, Docker, reverse proxies) but not a frontend developer. Explain what changed and why, briefly.
+4. **QA list.** The owner notes issues while testing in a private claude.ai page titled **"Mealie Premium QA"** (find it with the Artifact tool's `list`; the link is not kept in this public repo). Items live in its database collection `items` (`text`, `area`, `device`, `priority`, `status` new/planned/done/wontfix, `screenshots` asset ids, `version`, `claudeNote`). When the owner asks for the next batch: read open items, propose the batch, set them to `planned` with a note; after the build, set `done` with the `version`. Screenshots stay private there; never copy them into the repo.
+5. **Plain language.** The owner is technical (Unraid, Docker, reverse proxies) but not a frontend developer. Explain what changed and why, briefly.
 
 ## 3. Hard rules
 
@@ -175,6 +176,7 @@ The Import screen gets Link / Photo / Video options. iOS can't share into a web 
 
 ## 11. Changelog
 
+- **v0.2.4** (2026-11-16): QA list workflow (private "Mealie Premium QA" page).
 - **v0.2.3** (2026-11-16): Settings is a menu again (User Settings, Data Management, Admin Settings by permission); fixes Site Settings being unreachable since v0.2.0.
 - **v0.2.2** (2026-11-16): quantities, servings and yield accept fractions ("3/8 cup").
 - **v0.2.1** (2026-11-16): "Collection" wording via `premium-terms.ts`; "Import Tools" menu; sidebar descender fix; Recipe of the Week and AI Recipe Finder added to the plan.
