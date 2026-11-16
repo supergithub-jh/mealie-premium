@@ -1,4 +1,4 @@
-# Mealie Premium (Digital Cookbook): Project Handoff (v0.2.4)
+# Mealie Premium (Digital Cookbook): Project Handoff (v0.3.0)
 
 Handoff for Claude Code working in this fork. Written 2026-11-14, updated 2026-11-16 (changelog at the end).
 Loaded automatically: the first line of the root `CLAUDE.md` is `@cookbook/HANDOFF.md`.
@@ -33,6 +33,7 @@ A personal fork of [Mealie](https://github.com/mealie-recipes/mealie) that resty
 - **Wording "Collection" (v0.2.1):** the fork calls Mealie's "Cookbooks" **Collections** in all English texts. Done at load time by `lang/premium-terms.ts` (hooked into `lang/locales/en-US.ts` with a two-line upstream edit), not by editing `en-US.json`; it skips the `migration` texts (other apps' names, e.g. "Nextcloud Cookbook") and the fork's `premium` texts. `premium-terms.test.ts` fails if any English text still says "cookbook". Page addresses stay `/cookbooks`.
 - **Import page (v0.2.1):** `pages/g/[groupSlug]/r/create.vue` uses `PremiumImportToolsMenu` (always labelled "Import Tools", current tool ticked) instead of `BaseOverflowButton` (small upstream edit).
 - **Fraction quantities (v0.2.2):** `PremiumQuantityInput` (logic in `composables/use-premium-quantity.ts`, tested) replaces Mealie's number boxes for ingredient quantity (`RecipeIngredientEditor.vue`), shopping list quantity (`ShoppingListItemDetails.vue`), servings and yield (`RecipePageInfoEditor.vue`) and the servings box of the scale popup (`RecipeScaleEditButton.vue`). It accepts "3/8", "1 1/2", "1-1/2", "½", "0.375", "0,375"; stores a plain number as Mealie expects; shows common fractions back (halves to sixteenths). Small upstream edits in those four files.
+- **Recipe page and Cook mode (v0.3.0):** `components/Domain/Recipe/RecipePage/RecipePage.vue` (small upstream edit) renders `PremiumRecipeView` in view mode and `PremiumCookMode` in cook mode; Mealie's own container now renders only in edit mode, and its Cook mode blocks are switched off by `const useUpstreamCookMode = false`. Editing is still Mealie's editor. The Premium views reuse Mealie's `RecipeIngredients` (checklist, ticks in session storage shared with Cook mode), `RecipePageScale` (servings and unit system), `RecipeContextMenu`, `RecipeFavoriteBadge`, `RecipeRating`, `RecipeLastMade`, `RecipeNotes`, `RecipeNutrition`, `RecipeAssets`, `RecipePageOrganizers`, `RecipePageComments` and `RecipePrintContainer`. Timer logic: `composables/use-premium-timers.ts` (parses "12–15 minutes", "1 hr 30 min", "1½ hours", "half an hour"; tested). Feature switches: `composables/use-premium-features.ts` (`aiImages: false` until the helper exists). Cook mode keeps its step per recipe and its own light/dark choice in local storage (`composables/use-premium-cook.ts`).
 - **Naming collision:** Mealie already has a "Cookbook" feature (its name for recipe collections) under `components/Domain/Cookbook/`. Don't use `Cookbook` as a component prefix; use `Premium`.
 - **Follow upstream conventions** in the root `CLAUDE.md` (component naming, composables, i18n). New user-facing strings go through i18n with English text.
 - **The repo is public** (AGPL). Never commit secrets, API keys, IPs, domains, backups or personal recipe data.
@@ -98,7 +99,7 @@ Design around the real data:
 
 **Making a release:** Claude Code cloud sessions can push branches but **not tags**. So the owner creates each release in the GitHub web UI: Releases → Draft a new release → tag `cookbook-vX.Y.Z` (create on publish) → target `feature/premium-cookbook` → Publish. That starts the image build. Claude prepares the commit, checks and release notes beforehand.
 
-**Upstream updates:** about once a month, add upstream if missing (`git remote add upstream https://github.com/mealie-recipes/mealie`), `git fetch upstream --tags`, then merge the newest **release tag** (never `mealie-next`), test, and release a patch version. Production is moved to the same Mealie release at the same time (section 7). After each merge: run `pnpm test:ci` (the menu test catches moved pages), and skim upstream changes to `components/Layout/` (header, sidebar, default layout) for new menu items or behaviour worth mirroring in the Premium layout. Before restoring a production backup into a fork build, confirm production's Mealie version is not ahead of the fork's base in database migrations (`mealie/alembic/versions`).
+**Upstream updates:** about once a month, add upstream if missing (`git remote add upstream https://github.com/mealie-recipes/mealie`), `git fetch upstream --tags`, then merge the newest **release tag** (never `mealie-next`), test, and release a patch version. Production is moved to the same Mealie release at the same time (section 7). After each merge: run `pnpm test:ci` (the menu test catches moved pages), and skim upstream changes to `components/Layout/` (header, sidebar, default layout) for new menu items or behaviour worth mirroring in the Premium layout, and to `RecipePage.vue` and the recipe components the Premium views reuse (section 3) for changed props or new view-mode features. Before restoring a production backup into a fork build, confirm production's Mealie version is not ahead of the fork's base in database migrations (`mealie/alembic/versions`).
 
 ## 7. Environments
 
@@ -122,7 +123,7 @@ Checks before every tag: `pnpm lint` and `pnpm test:ci` in `frontend/`, plus a v
 | --- | --- | --- | --- |
 | 1. Setup | v0.1.x | Fork, branch, image workflow, `cookbook.scss`, palette via env, dev copy on Unraid | Done: `cookbook-v0.1.0` released and built; dev copy running with Tailscale HTTPS |
 | 2. Theme and navigation shell | v0.2.x | Sidebar (desktop), bottom tab bar (phone), top/search bar, global Vuetify theming, fonts; v0.2.1: "Collection" wording, sidebar descender fix, "Import Tools" menu; v0.2.2: fraction quantities; v0.2.3: Settings menu restored (Admin Settings, Data Management) | `cookbook-v0.2.0` released; v0.2.1–v0.2.3 built, awaiting release |
-| 3. Recipe detail and Cook mode | v0.3.x | Editorial recipe page, servings scaling, ingredient checklist, step view, cook mode with parsed timers and screen wake lock; "Generate image with AI" button (hidden until the helper exists) | Planned |
+| 3. Recipe detail and Cook mode | v0.3.x | Editorial recipe page, servings scaling, ingredient checklist, step view, cook mode with parsed timers and screen wake lock; "Generate image with AI" button (hidden until the helper exists) | v0.3.0 built, awaiting release |
 | 4. Main screens | v0.4.x | Home page of its own (**Recipe of the Week**, Tonight, recent, quick filters), Recipes grid, Meal planner, Shopping list (incl. item-count badge on the menu) | Planned |
 | 5. AI helper | v0.5.x | Separate `mealie-ai-helper` container (section 9): video importer, AI recipe images, weekly Recipe of the Week import, AI Recipe Finder (from the web); plus an iOS Shortcut for the Share menu | Planned |
 | 6. Test and cutover | v1.0.0 | Full checks, production backup, switch production to the fork image, keep the official image for rollback | Planned |
@@ -173,9 +174,13 @@ The Import screen gets Link / Photo / Video options. iOS can't share into a web 
 - "Cookbook(s)" is shown as "Collection(s)" in English (v0.2.1).
 - Recipe of the Week (not of the Day), from open recipe feeds, not NYT Cooking. AI Recipe Finder searches the web (option A), not AI-invented recipes.
 - Order: phase 3 (recipe page, Cook mode) next, then phase 4, then the helper (phase 5).
+- Recipe page: layout as the owner's mockup (photo left with Cook Mode under it; title, meta, description and **tabs** Ingredients | Instructions | Notes on the right; stacked on phones).
+- Cook mode: follows the app's light/dark setting, with its own sun/moon toggle (remembered on the device). Timers are always adjustable: a detected time opens a "Set timer" panel pre-filled with it (ranges offer both ends as quick picks), minutes and seconds editable, ±1 min; "Add timer" on every step. Several timers run at once, pinned at the top; chime + vibration when done.
+- Phase 3 ships as one release, `v0.3.0`.
 
 ## 11. Changelog
 
+- **v0.3.0** (2026-11-16): phase 3 built: Premium recipe page (tabs), Cook mode (step view, timers with manual entry, ingredients panel, wake lock, own light/dark toggle, remembers step), photo placeholder with hidden AI-image button; page descriptions back to Inter.
 - **v0.2.4** (2026-11-16): QA list workflow (private "Mealie Premium QA" page).
 - **v0.2.3** (2026-11-16): Settings is a menu again (User Settings, Data Management, Admin Settings by permission); fixes Site Settings being unreachable since v0.2.0.
 - **v0.2.2** (2026-11-16): quantities, servings and yield accept fractions ("3/8 cup").

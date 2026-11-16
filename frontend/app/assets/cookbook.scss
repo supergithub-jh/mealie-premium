@@ -171,3 +171,56 @@ $premium-latin-ext:
 .premium-menu {
   border-radius: var(--cookbook-radius) !important;
 }
+
+// Mealie uses <h3 class="subtitle-1"> for page descriptions (running text): keep those in Inter
+.v-application h3.subtitle-1 {
+  font-family: "Inter", system-ui, sans-serif !important;
+  letter-spacing: normal;
+}
+
+// ---------------------------------------------------------------- Phase 3: recipe page, Cook mode
+
+// Soft fill for chips and placeholders. A custom property, so the NEAREST theme wins
+// (Cook mode can be dark inside a light app, and the other way round).
+.v-theme--light {
+  --premium-soft: var(--cookbook-sage);
+}
+.v-theme--dark {
+  --premium-soft: rgba(var(--v-theme-primary), 0.16);
+}
+
+// Soft chips (times, tools, step ingredients)
+.premium-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 0;
+  font: inherit;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: inherit;
+  background: var(--premium-soft);
+}
+
+button.premium-chip {
+  cursor: pointer;
+}
+
+button.premium-chip:hover,
+button.premium-chip:focus-visible {
+  outline: 2px solid rgba(var(--v-theme-primary), 0.5);
+  outline-offset: 1px;
+}
+
+.premium-chip--large {
+  font-size: 1rem;
+  padding: 6px 14px;
+}
+
+// While Cook mode is open, the page behind it doesn't scroll
+html.premium-cook-open,
+html.premium-cook-open body {
+  overflow: hidden !important;
+}

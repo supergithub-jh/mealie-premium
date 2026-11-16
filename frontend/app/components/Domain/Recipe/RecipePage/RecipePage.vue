@@ -21,7 +21,22 @@
       @update:model-value="toggleIsParsing"
       @save="saveParsedIngredients"
     />
-    <v-container v-show="!isCookMode" key="recipe-page" class="px-0" :class="{ 'pa-0': $vuetify.display.smAndDown }">
+    <!-- Mealie Premium: own recipe view and Cook mode; Mealie's container below is used for editing only -->
+    <PremiumRecipeView
+      v-if="!isEditMode && !isCookMode"
+      v-model="recipe"
+      v-model:scale="scale"
+      :displayed-recipe="displayedRecipe"
+      :ingredient-storage-key="ingredientStorageKey"
+      :disable-comments="disableComments"
+    />
+    <PremiumCookMode
+      v-if="isCookMode"
+      v-model:scale="scale"
+      :recipe="displayedRecipe"
+      :ingredient-storage-key="ingredientStorageKey"
+    />
+    <v-container v-if="isEditMode" key="recipe-page" class="px-0" :class="{ 'pa-0': $vuetify.display.smAndDown }">
       <v-card flat class="d-print-none">
         <RecipePageHeader
           ref="recipeToolbar"
@@ -142,7 +157,7 @@
     <!-- Cook mode displays two columns with ingredients and instructions side by side, each being scrolled individually, allowing to view both at the same time -->
     <!-- The calc is to account for the navabar height (48px) -->
     <v-sheet
-      v-show="isCookMode && !hasLinkedIngredients"
+      v-if="useUpstreamCookMode && isCookMode && !hasLinkedIngredients"
       key="cookmode"
       :height="$vuetify.display.smAndUp ? 'calc(100vh - 48px)' : 'auto'"
       class-name="overflow-hidden"
@@ -183,7 +198,7 @@
         </v-col>
       </v-row>
     </v-sheet>
-    <v-sheet v-show="isCookMode && hasLinkedIngredients">
+    <v-sheet v-if="useUpstreamCookMode && isCookMode && hasLinkedIngredients">
       <div class="mt-2 px-2 px-md-4">
         <RecipePageScale v-model="scale" :recipe="recipe" />
       </div>
@@ -210,7 +225,7 @@
       </div>
     </v-sheet>
     <v-btn
-      v-if="isCookMode"
+      v-if="useUpstreamCookMode && isCookMode"
       icon
       color="primary"
       style="position: fixed; right: 12px; top: 60px"
@@ -256,6 +271,11 @@ import { useLoggedInState } from "~/composables/use-logged-in-state";
 import { useNavigationWarning } from "~/composables/use-navigation-warning";
 import { useUnitConversion, useUnitSystem } from "~/composables/recipes";
 import { useHouseholdSelf } from "~/composables/use-households";
+import PremiumRecipeView from "~/components/Domain/Premium/PremiumRecipeView.vue";
+import PremiumCookMode from "~/components/Domain/Premium/PremiumCookMode.vue";
+
+// Mealie Premium: false = use the fork's Cook mode instead of Mealie's
+const useUpstreamCookMode = false;
 
 const recipe = defineModel<RecipeOut>({ required: true });
 
