@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Lemon">
+<title>Lemon</title>
+<rect width="256" height="256" rx="128" fill="#E5EAD5"/>
+<ellipse cx="128" cy="136" rx="70" ry="54" fill="#F2C94C" transform="rotate(-20 128 136)"/>
+<ellipse cx="128" cy="136" rx="52" ry="38" fill="#F7DE7E" transform="rotate(-20 128 136)"/>
+<path d="M150 72 C170 52 196 50 206 58 C196 76 172 84 150 72Z" fill="#536B32"/>
+</svg>

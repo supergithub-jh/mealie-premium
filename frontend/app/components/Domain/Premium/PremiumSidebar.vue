@@ -6,7 +6,10 @@
     :border="0"
   >
     <div class="px-5 pt-6 pb-4">
-      <PremiumBrand :to="homeLink" />
+      <PremiumBrand
+        :to="homeLink"
+        show-version
+      />
     </div>
 
     <v-list

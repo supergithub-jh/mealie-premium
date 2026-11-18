@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Whisk">
+<title>Whisk</title>
+<rect width="256" height="256" rx="128" fill="#F3E3C3"/>
+<path d="M128 40 C92 80 96 140 128 156 C160 140 164 80 128 40Z M128 40 C110 84 112 136 128 156 C144 136 146 84 128 40Z" fill="none" stroke="#322C25" stroke-width="6"/>
+<rect x="118" y="154" width="20" height="62" rx="10" fill="#536B32"/>
+</svg>

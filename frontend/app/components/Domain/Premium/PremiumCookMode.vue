@@ -115,13 +115,6 @@
         v-if="step"
         class="premium-cook__step"
       >
-        <PremiumRecipeImage
-          v-if="showPhoto"
-          :recipe="recipe"
-          aspect="16 / 5"
-          compact
-          class="premium-cook__photo"
-        />
         <h2
           v-if="step.raw.title"
           class="premium-cook__section"
@@ -288,7 +281,7 @@
               <v-btn
                 v-for="pick in timerSheet.picks"
                 :key="pick"
-                :variant="pick === timerSheet.minutes * 60 + timerSheet.seconds ? 'flat' : 'outlined'"
+                :variant="pick === sheetSeconds ? 'flat' : 'outlined'"
                 color="primary"
                 class="text-none"
                 @click="setPick(pick)"
@@ -297,19 +290,22 @@
               </v-btn>
             </div>
             <div class="d-flex align-center ga-2">
-              <v-btn
-                icon
-                variant="tonal"
-                :aria-label="$t('premium.minus-minute')"
-                @click="nudge(-60)"
-              >
-                <v-icon :icon="mdiMinus" />
-              </v-btn>
+              <v-text-field
+                v-model.number="timerSheet.hours"
+                type="number"
+                inputmode="numeric"
+                min="0"
+                :label="$t('premium.timer-hours')"
+                hide-details
+                density="comfortable"
+                class="premium-cook__time-field"
+              />
               <v-text-field
                 v-model.number="timerSheet.minutes"
                 type="number"
                 inputmode="numeric"
                 min="0"
+                max="59"
                 :label="$t('premium.timer-minutes')"
                 hide-details
                 density="comfortable"
@@ -326,13 +322,23 @@
                 hide-details
                 density="comfortable"
               />
+            </div>
+            <div class="d-flex ga-2">
               <v-btn
-                icon
                 variant="tonal"
-                :aria-label="$t('premium.plus-minute')"
+                class="text-none flex-grow-1"
+                :prepend-icon="mdiMinus"
+                @click="nudge(-60)"
+              >
+                {{ $t("premium.minus-minute") }}
+              </v-btn>
+              <v-btn
+                variant="tonal"
+                class="text-none flex-grow-1"
+                :prepend-icon="mdiPlus"
                 @click="nudge(60)"
               >
-                <v-icon :icon="mdiPlus" />
+                {{ $t("premium.plus-minute") }}
               </v-btn>
             </div>
           </v-card-text>
@@ -470,10 +476,6 @@ const servings = computed(() => {
   return base ? formatQuantity(base * scale.value) : "";
 });
 
-// Photo banner only on tall screens, so the step text stays the focus on phones
-const tall = ref(false);
-const showPhoto = computed(() => tall.value && !!props.recipe.image);
-
 // ------------------------------------------------------------ theme (Cook mode only)
 const appTheme = useTheme();
 const cookTheme = ref<CookTheme>("auto");
@@ -490,11 +492,12 @@ function toggleTheme() {
 }
 
 // ------------------------------------------------------------ timers
-const timerSheet = reactive({ open: false, minutes: 5, seconds: 0, picks: [] as number[], label: "" });
-const sheetSeconds = computed(() => (Number(timerSheet.minutes) || 0) * 60 + (Number(timerSheet.seconds) || 0));
+const timerSheet = reactive({ open: false, hours: 0, minutes: 5, seconds: 0, picks: [] as number[], label: "" });
+const sheetSeconds = computed(() => (Number(timerSheet.hours) || 0) * 3600 + (Number(timerSheet.minutes) || 0) * 60 + (Number(timerSheet.seconds) || 0));
 
 function setPick(total: number) {
-  timerSheet.minutes = Math.floor(total / 60);
+  timerSheet.hours = Math.floor(total / 3600);
+  timerSheet.minutes = Math.floor((total % 3600) / 60);
   timerSheet.seconds = total % 60;
 }
 
@@ -554,10 +557,6 @@ function onKey(e: KeyboardEvent) {
 // ------------------------------------------------------------ screen wake lock
 const wakeLock = useWakeLock();
 
-function measure() {
-  tall.value = window.innerHeight >= 820;
-}
-
 // The app's bars stay in the page behind Cook mode: take them out of keyboard and screen reader reach
 const BEHIND = ".premium-topbar, .premium-sidebar, .premium-bottom-nav";
 function setBehindInert(on: boolean) {
@@ -566,8 +565,6 @@ function setBehindInert(on: boolean) {
 
 onMounted(() => {
   window.addEventListener("keydown", onKey);
-  window.addEventListener("resize", measure);
-  measure();
   document.documentElement.classList.add("premium-cook-open");
   setBehindInert(true);
   if (wakeLock.isSupported.value) {
@@ -577,7 +574,6 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   window.removeEventListener("keydown", onKey);
-  window.removeEventListener("resize", measure);
   document.documentElement.classList.remove("premium-cook-open");
   setBehindInert(false);
   if (wakeLock.isActive.value) wakeLock.release().catch(() => {});
@@ -768,10 +764,6 @@ onBeforeUnmount(() => {
 .premium-cook__scale {
   font-size: 1rem;
   line-height: 1.5;
-}
-
-.premium-cook__photo {
-  max-height: 200px;
 }
 
 .premium-cook__time-field {

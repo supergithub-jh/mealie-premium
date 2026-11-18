@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Bread">
+<title>Bread</title>
+<rect width="256" height="256" rx="128" fill="#FAF7F2"/>
+<path d="M58 150 C58 96 198 96 198 150 V184 C198 192 192 198 184 198 H72 C64 198 58 192 58 184Z" fill="#C9784A"/>
+<path d="M66 150 C66 106 190 106 190 150 V180 H66Z" fill="#E7B07D"/>
+<path d="M98 132 L110 116 M128 130 L140 114 M158 132 L170 116" stroke="#C9784A" stroke-width="7" stroke-linecap="round"/>
+</svg>

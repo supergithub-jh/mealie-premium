@@ -15,6 +15,11 @@
             :url="`/api/users/${userCopy.id}/image`"
             @uploaded="auth.getSession()"
           />
+          <!-- Mealie Premium: pick an illustrated picture instead of uploading -->
+          <PremiumAvatarPicker
+            :user-id="userCopy.id!"
+            @uploaded="auth.getSession()"
+          />
         </div>
       </template>
       <template #title>

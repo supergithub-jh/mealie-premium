@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Chef hat">
+<title>Chef hat</title>
+<rect width="256" height="256" rx="128" fill="#F3E3C3"/>
+<path d="M78 150 C52 146 46 108 72 98 C72 70 108 60 124 78 C134 56 172 58 178 86 C204 84 214 120 190 134 L186 150Z" fill="#FAF7F2" stroke="#322C25" stroke-width="6" stroke-linejoin="round"/>
+<rect x="80" y="150" width="104" height="40" rx="8" fill="#FAF7F2" stroke="#322C25" stroke-width="6"/>
+<path d="M104 160 V182 M132 160 V182 M158 160 V182" stroke="#322C25" stroke-width="5" stroke-linecap="round"/>
+</svg>

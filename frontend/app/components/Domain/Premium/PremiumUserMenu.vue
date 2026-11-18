@@ -92,6 +92,9 @@
           :title="$t('user.logout')"
           @click="logout"
         />
+        <div class="premium-menu__version">
+          {{ versionLabel }}
+        </div>
       </v-list>
     </v-menu>
 
@@ -123,6 +126,7 @@ import { useAnnouncements } from "~/composables/use-announcements";
 import { useLoggedInState } from "~/composables/use-logged-in-state";
 import { usePremiumNav } from "~/composables/use-premium-nav";
 import { useToggleDarkMode } from "~/composables/use-utils";
+import { premiumVersionLabel } from "~/premium-version";
 
 defineProps({
   /** Phone/tablet layout: also list the sidebar-only items */
@@ -140,6 +144,9 @@ const { announcementsEnabled, newAnnouncements } = useAnnouncements();
 const theme = useTheme();
 const isDark = computed(() => theme.current.value.dark);
 const toggleDark = useToggleDarkMode();
+
+const { $appInfo } = useNuxtApp();
+const versionLabel = computed(() => premiumVersionLabel($appInfo?.version));
 
 const languageDialog = ref(false);
 const announcementsDialog = ref(false);
@@ -159,3 +166,12 @@ async function logout() {
   }
 }
 </script>
+
+<style scoped>
+.premium-menu__version {
+  padding: 6px 16px 4px;
+  font-size: 0.72rem;
+  opacity: 0.6;
+  font-variant-numeric: tabular-nums;
+}
+</style>

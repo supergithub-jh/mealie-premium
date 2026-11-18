@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Olive branch">
+<title>Olive branch</title>
+<rect width="256" height="256" rx="128" fill="#F3E3C3"/>
+<path d="M60 196 C100 160 140 120 196 60" stroke="#536B32" stroke-width="6" fill="none" stroke-linecap="round"/>
+<ellipse cx="96" cy="150" rx="12" ry="24" fill="#536B32" transform="rotate(-50 96 150)"/>
+<ellipse cx="132" cy="126" rx="12" ry="24" fill="#536B32" transform="rotate(40 132 126)"/>
+<ellipse cx="160" cy="92" rx="12" ry="24" fill="#536B32" transform="rotate(-50 160 92)"/>
+<ellipse cx="118" cy="170" rx="11" ry="15" fill="#322C25"/><ellipse cx="170" cy="126" rx="11" ry="15" fill="#322C25"/>
+</svg>

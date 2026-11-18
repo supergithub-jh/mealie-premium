@@ -481,6 +481,7 @@ async function openShoppingList() {
   margin: 0 0 10px;
 }
 
+/* Photo: always 4:3, cropped to fit (never stretched), on every screen. */
 @media (max-width: 959px) {
   .premium-recipe {
     padding: 12px 16px 32px;
@@ -493,6 +494,24 @@ async function openShoppingList() {
 
   .premium-recipe__media {
     position: static;
+  }
+}
+
+/* Sideways phones: photo on the left (still 4:3, sized to fit the screen height),
+   title and tabs beside it, so neither pushes the other off screen. */
+@media (max-width: 959px) and (min-width: 600px) and (orientation: landscape) {
+  .premium-recipe__grid {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: 24px;
+  }
+
+  .premium-recipe__media {
+    position: sticky;
+    top: 72px;
+  }
+
+  .premium-recipe__media :deep(.premium-photo) {
+    max-width: calc((100vh - 150px) * 4 / 3);
   }
 }
 </style>

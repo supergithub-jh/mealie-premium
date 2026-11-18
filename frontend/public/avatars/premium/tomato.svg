@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Tomato">
+<title>Tomato</title>
+<rect width="256" height="256" rx="128" fill="#E5EAD5"/>
+<circle cx="128" cy="144" r="66" fill="#D9583B"/>
+<ellipse cx="104" cy="122" rx="14" ry="22" fill="#EC8A6E" transform="rotate(30 104 122)"/>
+<path d="M128 82 L114 70 L128 76 L134 60 L140 76 L156 70 L142 84Z" fill="#536B32"/>
+</svg>

@@ -49,6 +49,7 @@ const buttonLookup: { [key: string]: string } = {
   categories: i18n.t("category.categories"),
   tags: i18n.t("tag.tags"),
   tools: i18n.t("tool.tools"),
+  import: i18n.t("premium.bulk-import"), // Mealie Premium
 };
 
 const route = useRoute();
@@ -95,6 +96,13 @@ const DATA_TYPE_OPTIONS = computed(() => [
     text: i18n.t("tool.tools"),
     value: "new",
     to: "/group/data/tools",
+    divider: true,
+  },
+  // Mealie Premium: Bulk Import page
+  {
+    text: i18n.t("premium.bulk-import"),
+    value: "new",
+    to: "/group/data/import",
   },
 ]);
 

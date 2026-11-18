@@ -24,12 +24,17 @@
         v-if="!compact"
         class="premium-brand__subtitle"
       >{{ $t("premium.digital-cookbook") }}</span>
+      <span
+        v-if="!compact && showVersion"
+        class="premium-brand__version"
+      >{{ versionLabel }}</span>
     </span>
   </RouterLink>
 </template>
 
 <script setup lang="ts">
 import { mdiChefHat } from "@mdi/js";
+import { premiumVersionLabel } from "~/premium-version";
 
 defineProps({
   to: {
@@ -40,7 +45,14 @@ defineProps({
     type: Boolean,
     default: false,
   },
+  showVersion: {
+    type: Boolean,
+    default: false,
+  },
 });
+
+const { $appInfo } = useNuxtApp();
+const versionLabel = computed(() => premiumVersionLabel($appInfo?.version));
 </script>
 
 <style scoped>
@@ -81,5 +93,12 @@ defineProps({
 .premium-brand__subtitle {
   font-size: 0.85rem;
   opacity: 0.75;
+}
+
+.premium-brand__version {
+  font-size: 0.7rem;
+  opacity: 0.6;
+  margin-top: 2px;
+  font-variant-numeric: tabular-nums;
 }
 </style>

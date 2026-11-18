@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Mushroom">
+<title>Mushroom</title>
+<rect width="256" height="256" rx="128" fill="#E5EAD5"/>
+<path d="M60 128 C60 82 196 82 196 128 C196 140 60 140 60 128Z" fill="#C9784A"/>
+<circle cx="100" cy="112" r="9" fill="#F3E3C3"/><circle cx="138" cy="102" r="7" fill="#F3E3C3"/><circle cx="166" cy="118" r="8" fill="#F3E3C3"/>
+<path d="M106 134 H150 L144 196 C142 204 114 204 112 196Z" fill="#F3E3C3"/>
+</svg>

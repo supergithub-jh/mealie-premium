@@ -21,8 +21,11 @@
 <script setup lang="ts">
 import { useLoggedInState } from "~/composables/use-logged-in-state";
 
-// Phones and portrait tablets (< 960px) get the tab bar; wider screens the sidebar.
-const { mdAndUp } = useDisplay();
-const compact = computed(() => !mdAndUp.value);
+// Phones (also sideways) and portrait tablets (< 960px) get the tab bar; wider screens the sidebar.
+// An explicit width, not Vuetify's "md" breakpoint, which starts at 840px and would give a
+// sideways phone the desktop sidebar. Keep in step with the 959px rules in the Premium styles.
+const PREMIUM_COMPACT_BELOW = 960;
+const { width } = useDisplay();
+const compact = computed(() => width.value < PREMIUM_COMPACT_BELOW);
 const { loggedIn } = useLoggedInState();
 </script>

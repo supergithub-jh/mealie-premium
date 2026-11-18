@@ -1,4 +1,4 @@
-# Mealie Premium (Digital Cookbook): Project Handoff (v0.3.0)
+# Mealie Premium (Digital Cookbook): Project Handoff (v0.3.1)
 
 Handoff for Claude Code working in this fork. Written 2026-11-14, updated 2026-11-16 (changelog at the end).
 Loaded automatically: the first line of the root `CLAUDE.md` is `@cookbook/HANDOFF.md`.
@@ -34,6 +34,9 @@ A personal fork of [Mealie](https://github.com/mealie-recipes/mealie) that resty
 - **Import page (v0.2.1):** `pages/g/[groupSlug]/r/create.vue` uses `PremiumImportToolsMenu` (always labelled "Import Tools", current tool ticked) instead of `BaseOverflowButton` (small upstream edit).
 - **Fraction quantities (v0.2.2):** `PremiumQuantityInput` (logic in `composables/use-premium-quantity.ts`, tested) replaces Mealie's number boxes for ingredient quantity (`RecipeIngredientEditor.vue`), shopping list quantity (`ShoppingListItemDetails.vue`), servings and yield (`RecipePageInfoEditor.vue`) and the servings box of the scale popup (`RecipeScaleEditButton.vue`). It accepts "3/8", "1 1/2", "1-1/2", "½", "0.375", "0,375"; stores a plain number as Mealie expects; shows common fractions back (halves to sixteenths). Small upstream edits in those four files.
 - **Recipe page and Cook mode (v0.3.0):** `components/Domain/Recipe/RecipePage/RecipePage.vue` (small upstream edit) renders `PremiumRecipeView` in view mode and `PremiumCookMode` in cook mode; Mealie's own container now renders only in edit mode, and its Cook mode blocks are switched off by `const useUpstreamCookMode = false`. Editing is still Mealie's editor. The Premium views reuse Mealie's `RecipeIngredients` (checklist, ticks in session storage shared with Cook mode), `RecipePageScale` (servings and unit system), `RecipeContextMenu`, `RecipeFavoriteBadge`, `RecipeRating`, `RecipeLastMade`, `RecipeNotes`, `RecipeNutrition`, `RecipeAssets`, `RecipePageOrganizers`, `RecipePageComments` and `RecipePrintContainer`. Timer logic: `composables/use-premium-timers.ts` (parses "12–15 minutes", "1 hr 30 min", "1½ hours", "half an hour"; tested). Feature switches: `composables/use-premium-features.ts` (`aiImages: false` until the helper exists). Cook mode keeps its step per recipe and its own light/dark choice in local storage (`composables/use-premium-cook.ts`).
+- **Version line (v0.3.1):** `frontend/app/premium-version.ts` holds `PREMIUM_VERSION`; the sidebar (under "Digital Cookbook") and the bottom of the profile menu show "v0.3.1 · Mealie 3.31.0" (Mealie's part from `/api/app/about`). **Bump `PREMIUM_VERSION` in every release commit** together with a new top entry in the changelog (section 11); `premium-version.test.ts` fails if they differ.
+- **Profile pictures (v0.3.1):** 12 illustrated avatars drawn for this project in `frontend/public/avatars/premium/` (list in `composables/use-premium-avatars.ts`). `PremiumAvatarPicker` ("Choose a picture", next to Mealie's upload button in `pages/user/profile/edit.vue`, small upstream edit) renders the SVG to PNG and uploads it through Mealie's normal `POST /api/users/{id}/image`, so it is an ordinary profile picture.
+- **Bulk Import (v0.3.1):** `pages/group/data/import.vue` (new page; one menu entry added in upstream `pages/group/data.vue`). Types: foods, units, labels, tags, categories, tools; paste or CSV, preview (new / already exists / repeated / problem), adds new items one by one through the normal API, never changes existing ones. "Download CSV template" and "Export current list" per type. Logic and CSV handling in `composables/use-premium-bulk-import.ts` (tested). Recipes are not imported here; the page links to Import Tools.
 - **Naming collision:** Mealie already has a "Cookbook" feature (its name for recipe collections) under `components/Domain/Cookbook/`. Don't use `Cookbook` as a component prefix; use `Premium`.
 - **Follow upstream conventions** in the root `CLAUDE.md` (component naming, composables, i18n). New user-facing strings go through i18n with English text.
 - **The repo is public** (AGPL). Never commit secrets, API keys, IPs, domains, backups or personal recipe data.
@@ -60,7 +63,7 @@ Dark mode: primary `#A3B86C`, secondary `#E5EAD5`, on Mealie's dark background.
 
 **Layout:**
 - Desktop/tablet: a light left sidebar (Home, Recipes, Planner, Shopping List, Collections, Settings), with a search bar on top.
-- Phone **and portrait tablet** (< 960px, Vuetify `mdAndUp` false): a bottom tab bar with 5 items (Home, Recipes, Planner, List, Collections) and a compact top bar. Import, Recipe Finder, Timeline, organizers and the individual collections are in the profile menu.
+- Phone (also sideways) **and portrait tablet** (window narrower than 960px, an explicit width check in `PremiumLayout.vue`, not Vuetify's `md` breakpoint, which starts at 840px): a bottom tab bar with 5 items (Home, Recipes, Planner, List, Collections) and a compact top bar. Import, Recipe Finder, Timeline, organizers and the individual collections are in the profile menu.
 - Desktop sidebar: Home, Recipes, Collections, Meal Planner, Shopping List, Import, a collapsed "More" group, Settings at the bottom. **Settings is a menu** (as in upstream): User Settings, Data Management (organizers), Admin Settings (admins → `/admin/site-settings`); the same entries are in the profile menu. Admin pages keep upstream's `admin` layout (its own sidebar), restyled only by colours and fonts. Top bar: search (opens Mealie's search dialog, `/` shortcut), "+ Add Recipe" menu, profile menu.
 - Until phase 4, **Home opens the recipe list** (same page as Recipes); only Home is highlighted there.
 - Same look on both, different layout. Use Vuetify's display breakpoints (`useDisplay`).
@@ -122,8 +125,8 @@ Checks before every tag: `pnpm lint` and `pnpm test:ci` in `frontend/`, plus a v
 | Phase | Version | Scope | Status |
 | --- | --- | --- | --- |
 | 1. Setup | v0.1.x | Fork, branch, image workflow, `cookbook.scss`, palette via env, dev copy on Unraid | Done: `cookbook-v0.1.0` released and built; dev copy running with Tailscale HTTPS |
-| 2. Theme and navigation shell | v0.2.x | Sidebar (desktop), bottom tab bar (phone), top/search bar, global Vuetify theming, fonts; v0.2.1: "Collection" wording, sidebar descender fix, "Import Tools" menu; v0.2.2: fraction quantities; v0.2.3: Settings menu restored (Admin Settings, Data Management) | `cookbook-v0.2.0` released; v0.2.1–v0.2.3 built, awaiting release |
-| 3. Recipe detail and Cook mode | v0.3.x | Editorial recipe page, servings scaling, ingredient checklist, step view, cook mode with parsed timers and screen wake lock; "Generate image with AI" button (hidden until the helper exists) | v0.3.0 built, awaiting release |
+| 2. Theme and navigation shell | v0.2.x | Sidebar (desktop), bottom tab bar (phone), top/search bar, global Vuetify theming, fonts; v0.2.1: "Collection" wording, sidebar descender fix, "Import Tools" menu; v0.2.2: fraction quantities; v0.2.3: Settings menu restored (Admin Settings, Data Management) | `cookbook-v0.2.0` released; v0.2.1–v0.2.3 included in later releases |
+| 3. Recipe detail and Cook mode | v0.3.x | Editorial recipe page, servings scaling, ingredient checklist, step view, cook mode with parsed timers and screen wake lock; "Generate image with AI" button (hidden until the helper exists) | v0.3.0 built; v0.3.1 built, awaiting release |
 | 4. Main screens | v0.4.x | Home page of its own (**Recipe of the Week**, Tonight, recent, quick filters), Recipes grid, Meal planner, Shopping list (incl. item-count badge on the menu) | Planned |
 | 5. AI helper | v0.5.x | Separate `mealie-ai-helper` container (section 9): video importer, AI recipe images, weekly Recipe of the Week import, AI Recipe Finder (from the web); plus an iOS Shortcut for the Share menu | Planned |
 | 6. Test and cutover | v1.0.0 | Full checks, production backup, switch production to the fork image, keep the official image for rollback | Planned |
@@ -177,9 +180,12 @@ The Import screen gets Link / Photo / Video options. iOS can't share into a web 
 - Recipe page: layout as the owner's mockup (photo left with Cook Mode under it; title, meta, description and **tabs** Ingredients | Instructions | Notes on the right; stacked on phones).
 - Cook mode: follows the app's light/dark setting, with its own sun/moon toggle (remembered on the device). Timers are always adjustable: a detected time opens a "Set timer" panel pre-filled with it (ranges offer both ends as quick picks), minutes and seconds editable, ±1 min; "Add timer" on every step. Several timers run at once, pinned at the top; chime + vibration when done.
 - Phase 3 ships as one release, `v0.3.0`.
+- Recipe photo: always 4:3, cropped to fit (never stretched), on every screen; sideways phones show it beside the title. No photo in Cook mode (v0.3.1).
+- Cook mode timer panel: hours, minutes and seconds (v0.3.1).
 
 ## 11. Changelog
 
+- **v0.3.1** (2026-11-18): timer hours; consistent 4:3 photo (sideways-phone layout), no photo in Cook mode; tab bar on sideways phones (explicit 960px switch); version line; illustrated profile pictures; Bulk Import with CSV template and export. QA items: version line, profile pictures, bulk import.
 - **v0.3.0** (2026-11-16): phase 3 built: Premium recipe page (tabs), Cook mode (step view, timers with manual entry, ingredients panel, wake lock, own light/dark toggle, remembers step), photo placeholder with hidden AI-image button; page descriptions back to Inter.
 - **v0.2.4** (2026-11-16): QA list workflow (private "Mealie Premium QA" page).
 - **v0.2.3** (2026-11-16): Settings is a menu again (User Settings, Data Management, Admin Settings by permission); fixes Site Settings being unreachable since v0.2.0.

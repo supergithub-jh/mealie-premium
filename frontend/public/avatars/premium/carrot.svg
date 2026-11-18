@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Carrot">
+<title>Carrot</title>
+<rect width="256" height="256" rx="128" fill="#FAF7F2"/>
+<path d="M84 196 L156 92 C166 80 186 92 178 106 L100 204 C92 212 78 206 84 196Z" fill="#C9784A"/>
+<path d="M120 152 L132 160 M136 130 L148 138 M106 176 L116 182" stroke="#A85E36" stroke-width="5" stroke-linecap="round"/>
+<path d="M170 92 C164 64 176 48 186 44 C188 62 184 80 170 92Z M174 96 C196 84 214 88 220 96 C204 106 188 106 174 96Z" fill="#536B32"/>
+</svg>
