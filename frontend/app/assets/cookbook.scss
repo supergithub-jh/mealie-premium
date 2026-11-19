@@ -245,6 +245,11 @@ html .v-theme--light {
 
 .v-application .v-table {
   border-radius: var(--cookbook-radius);
+  overflow: hidden; // keeps the last row's line inside the rounded corners
+}
+
+.v-application .v-table > .v-table__wrapper > table > tbody > tr:last-child > td {
+  border-bottom: 0 !important;
 }
 
 // Mealie's section-header cards (background-coloured): plain headings, no box edge at all
@@ -252,4 +257,55 @@ html .v-theme--light {
   box-shadow: none !important;
   border-radius: 0;
   background: transparent !important;
+}
+
+// ---------------------------------------------------------------- v0.3.3: one look for settings and admin boxes
+
+// Mealie's section and page headings (BaseCardSectionTitle): Playfair like every other heading,
+// Espresso text, olive icon. Mealie draws them in plain black Inter.
+.v-application .v-card.bg-background > .v-card-title {
+  font-family: var(--cookbook-serif);
+  font-weight: 600 !important;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+.v-theme--light .v-card.bg-background > .v-card-title {
+  color: var(--cookbook-espresso);
+}
+
+.v-application .v-card.bg-background > .v-card-title > .v-icon {
+  color: rgb(var(--v-theme-primary));
+}
+
+// List rows inside a box always have 16px inner padding (Mealie leaves some flush with the edge,
+// e.g. Site Maintenance › Actions)
+.v-application .v-card:not(.bg-background) > .v-list-item,
+.v-application .v-card:not(.bg-background) > .v-list > .v-list-item {
+  padding-inline: 16px !important;
+}
+
+// Flat white boxes get the same soft shadow as the rest (Mealie mixes flat and raised boxes)
+.v-theme--light .v-card.v-card--variant-flat:not(.bg-background):not(.v-card .v-card):not(.v-overlay__content .v-card) {
+  box-shadow: var(--cookbook-shadow) !important;
+}
+
+// Status boxes (e.g. Site Settings › Email): same corners and shadow as cards, white in light mode
+.v-application .v-alert {
+  border-radius: var(--cookbook-radius);
+}
+
+.v-theme--light .v-alert.v-alert--variant-text {
+  background: var(--cookbook-white);
+  box-shadow: var(--cookbook-shadow) !important;
+}
+
+// Tables are boxes like the cards: soft shadow (unless already inside a card), and no stray line
+// under them (Mealie puts a divider straight after some tables, which stuck out past the corners)
+.v-theme--light .v-data-table:not(.v-card .v-data-table) {
+  box-shadow: var(--cookbook-shadow) !important;
+}
+
+.v-application .v-table + .v-divider {
+  display: none;
 }

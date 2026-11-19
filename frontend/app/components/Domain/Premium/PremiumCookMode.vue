@@ -578,7 +578,7 @@ function trapTab(e: KeyboardEvent) {
   const root = cookRoot.value;
   if (!root) return;
   const items = [...root.querySelectorAll<HTMLElement>("button:not([disabled]), [href], input, [tabindex]:not([tabindex='-1'])")]
-    .filter(el => el.offsetParent !== null || getComputedStyle(el).position === "fixed");
+    .filter(el => el.offsetParent !== null || ["fixed", "absolute"].includes(getComputedStyle(el).position));
   if (!items.length) return;
   const first = items[0]!;
   const last = items[items.length - 1]!;
@@ -880,7 +880,7 @@ onBeforeUnmount(() => {
   display: none !important;
 }
 
-/* Short sideways screens (phones in landscape): the arrows become fixed buttons on the left and
+/* Short sideways screens (phones in landscape): the arrows become buttons pinned to the left and
    right edges, vertically centred and clear of the phone's edges and home bar, so they are always
    visible and reachable; ingredients move to the header; text a little smaller. */
 @media (orientation: landscape) and (max-height: 500px) {
@@ -893,7 +893,16 @@ onBeforeUnmount(() => {
     padding: 10px 0 8px;
   }
 
+  /* The step text scrolls on its own; header and arrows stay put */
+  .premium-cook {
+    overflow: hidden;
+  }
+
   .premium-cook__step {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
     padding: 16px 0 24px;
     gap: 14px;
   }
@@ -915,7 +924,10 @@ onBeforeUnmount(() => {
   }
 
   .premium-cook__arrow {
-    position: fixed !important;
+    /* Absolute within the Cook mode box, which itself doesn't scroll here. Not position: fixed:
+       iOS Safari draws fixed buttons inside a scrolling box in the right place but sends the taps
+       elsewhere, so they looked fine and did nothing (v0.3.3). */
+    position: absolute !important;
     top: 50%;
     transform: translateY(-50%);
     z-index: 2;
