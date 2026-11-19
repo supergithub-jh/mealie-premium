@@ -39,7 +39,7 @@ function resolvePage(urlPath: string): string | null {
 }
 
 const nav = buildPremiumNav("demo-group", key => key, { aiImport: true });
-const allLinks = [...nav.sidebar, ...nav.tabs, ...nav.more, ...nav.create, ...nav.settings];
+const allLinks = [...nav.sidebar, ...nav.tabs, ...nav.more, ...nav.create, ...nav.settings, ...nav.admin];
 
 describe("Premium navigation", () => {
   test.each(allLinks.map(l => [l.key, l.to]))("%s link (%s) points to an existing page", (_key, to) => {

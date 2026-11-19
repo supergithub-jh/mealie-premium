@@ -224,3 +224,32 @@ html.premium-cook-open,
 html.premium-cook-open body {
   overflow: hidden !important;
 }
+
+// ---------------------------------------------------------------- v0.3.2: settings and admin pages
+
+// Mealie draws its section headers ("Recipe Data", "Configuration"…) as cards in the theme's
+// "background" colour, with no side padding, meant to be invisible on a page of the same colour.
+// Our page is Ivory, so make the light theme's background Ivory too: the headers blend in again and
+// buttons Mealie places on their edge no longer overlap a visible box. (Higher specificity than
+// Vuetify's generated `.v-theme--light` rule.)
+html .v-theme--light {
+  --v-theme-background: 250, 247, 242;
+}
+
+// Real content boxes (tables, settings lists, forms): one standard, white, 16px corners,
+// 16px inner padding where Mealie leaves none.
+.v-application .v-card.v-card--variant-elevated:not(.v-sheet--rounded-0) > .v-card-text:first-child,
+.v-application .v-card.v-card--variant-outlined > .v-card-text:first-child {
+  padding: 16px;
+}
+
+.v-application .v-table {
+  border-radius: var(--cookbook-radius);
+}
+
+// Mealie's section-header cards (background-coloured): plain headings, no box edge at all
+.v-application .v-card.bg-background {
+  box-shadow: none !important;
+  border-radius: 0;
+  background: transparent !important;
+}

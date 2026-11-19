@@ -51,8 +51,7 @@ defineProps({
   },
 });
 
-const { $appInfo } = useNuxtApp();
-const versionLabel = computed(() => premiumVersionLabel($appInfo?.version));
+const versionLabel = premiumVersionLabel();
 </script>
 
 <style scoped>

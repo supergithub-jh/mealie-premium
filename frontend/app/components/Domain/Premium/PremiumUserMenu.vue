@@ -145,8 +145,7 @@ const theme = useTheme();
 const isDark = computed(() => theme.current.value.dark);
 const toggleDark = useToggleDarkMode();
 
-const { $appInfo } = useNuxtApp();
-const versionLabel = computed(() => premiumVersionLabel($appInfo?.version));
+const versionLabel = premiumVersionLabel();
 
 const languageDialog = ref(false);
 const announcementsDialog = ref(false);

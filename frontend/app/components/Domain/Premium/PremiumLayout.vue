@@ -7,6 +7,7 @@
     <PremiumTopBar :compact="compact" />
 
     <v-main class="premium-main">
+      <PremiumAdminTabs v-if="isAdminPage" />
       <v-scroll-x-transition>
         <div>
           <NuxtPage />
@@ -28,4 +29,8 @@ const PREMIUM_COMPACT_BELOW = 960;
 const { width } = useDisplay();
 const compact = computed(() => width.value < PREMIUM_COMPACT_BELOW);
 const { loggedIn } = useLoggedInState();
+
+// Admin pages (layouts/admin.vue also renders this layout) get the admin tab row
+const route = useRoute();
+const isAdminPage = computed(() => route.path.startsWith("/admin/") && route.path !== "/admin/setup");
 </script>

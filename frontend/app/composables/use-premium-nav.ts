@@ -4,7 +4,13 @@
 // cookbook store.
 import {
   mdiAccountCogOutline,
+  mdiAccountGroupOutline,
+  mdiAccountOutline,
   mdiAutoFix,
+  mdiCogOutline,
+  mdiDatabaseOutline,
+  mdiHomeAccount,
+  mdiTextSearch,
   mdiBookOpenPageVariantOutline,
   mdiCalendarMonthOutline,
   mdiCartOutline,
@@ -49,6 +55,8 @@ export interface PremiumNav {
   create: PremiumNavLink[];
   /** The Settings menu (sidebar and profile menu), as in Mealie's own sidebar */
   settings: PremiumNavLink[];
+  /** Admin sections, shown as a tab row at the top of admin pages */
+  admin: PremiumNavLink[];
 }
 
 export interface PremiumNavUser {
@@ -175,12 +183,26 @@ export function buildPremiumNav(groupSlug: string, t: Translate, opts: { aiImpor
     { key: "admin-settings", title: t("settings.admin-settings"), icon: mdiWrenchOutline, to: "/admin/site-settings", restricted: false, requires: "admin" },
   ];
 
+  const adminLink = (key: string, title: string, icon: string, to: string): PremiumNavLink =>
+    ({ key, title, icon, to, restricted: false, requires: "admin", match: startsWith(to) });
+  const admin: PremiumNavLink[] = [
+    adminLink("admin-site", t("sidebar.site-settings"), mdiCogOutline, "/admin/site-settings"),
+    adminLink("admin-users", t("user.users"), mdiAccountOutline, "/admin/manage/users"),
+    adminLink("admin-households", t("household.households"), mdiHomeAccount, "/admin/manage/households"),
+    adminLink("admin-groups", t("group.groups"), mdiAccountGroupOutline, "/admin/manage/groups"),
+    adminLink("admin-backups", t("sidebar.backups"), mdiDatabaseOutline, "/admin/backups"),
+    adminLink("admin-maintenance", t("sidebar.maintenance"), mdiWrenchOutline, "/admin/maintenance"),
+    adminLink("admin-ai", t("admin.ai-providers"), mdiAutoFix, "/admin/debug/ai-providers"),
+    adminLink("admin-parser", t("sidebar.parser"), mdiTextSearch, "/admin/debug/parser"),
+  ];
+
   return {
     sidebar: [home, recipes, collections, planner, list, importLink],
     tabs: [home, recipes, planner, list, collections],
     more,
     create,
     settings,
+    admin,
   };
 }
 
@@ -204,6 +226,7 @@ export function usePremiumNav() {
       more: all.more.filter(allowed),
       create: all.create.filter(allowed),
       settings: auth.user.value ? all.settings.filter(allowed) : [],
+      admin: auth.user.value ? all.admin.filter(allowed) : [],
     };
   });
 

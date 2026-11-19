@@ -11,9 +11,8 @@ describe("Mealie Premium version", () => {
     expect(newest).toBe(PREMIUM_VERSION);
   });
 
-  test("label shows both versions, without a doubled v", () => {
-    expect(premiumVersionLabel("v3.31.0")).toBe(`v${PREMIUM_VERSION} · Mealie 3.31.0`);
-    expect(premiumVersionLabel("3.31.0")).toBe(`v${PREMIUM_VERSION} · Mealie 3.31.0`);
-    expect(premiumVersionLabel(undefined)).toBe(`v${PREMIUM_VERSION}`);
+  test("label is the fork's version only", () => {
+    expect(premiumVersionLabel()).toBe(`v${PREMIUM_VERSION}`);
+    expect(premiumVersionLabel()).toMatch(/^v\d+\.\d+\.\d+$/);
   });
 });

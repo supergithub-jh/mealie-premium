@@ -2,6 +2,7 @@
   <!-- Mealie Premium Cook mode: one step at a time, timers, screen kept awake. -->
   <v-theme-provider :theme="isDark ? 'dark' : 'light'">
     <div
+      ref="cookRoot"
       class="premium-cook"
       :class="isDark ? 'v-theme--dark' : 'v-theme--light'"
       role="dialog"
@@ -78,6 +79,27 @@
             {{ $t("premium.serves", [servings]) }}
           </div>
         </div>
+        <!-- Short sideways screens: ingredients live up here, the arrows sit on the sides -->
+        <v-btn
+          icon
+          variant="text"
+          class="premium-cook__top-ingredients"
+          :aria-label="$t('recipe.ingredients')"
+          :title="$t('recipe.ingredients')"
+          @click="ingredientsOpen = true"
+        >
+          <v-icon :icon="mdiFormatListBulleted" />
+        </v-btn>
+        <v-btn
+          v-if="fullscreenSupported"
+          icon
+          variant="text"
+          :aria-label="isFullscreen ? $t('premium.exit-full-screen') : $t('premium.full-screen')"
+          :title="isFullscreen ? $t('premium.exit-full-screen') : $t('premium.full-screen')"
+          @click="toggleFullscreen"
+        >
+          <v-icon :icon="isFullscreen ? mdiFullscreenExit : mdiFullscreen" />
+        </v-btn>
         <v-btn
           icon
           variant="text"
@@ -180,6 +202,7 @@
           icon
           size="x-large"
           variant="tonal"
+          class="premium-cook__arrow premium-cook__arrow--prev"
           :disabled="current === 0"
           :aria-label="$t('premium.previous-step')"
           @click="go(-1)"
@@ -190,7 +213,7 @@
           variant="text"
           size="large"
           :prepend-icon="mdiFormatListBulleted"
-          class="text-none"
+          class="text-none premium-cook__bottom-ingredients"
           @click="ingredientsOpen = true"
         >
           {{ $t("recipe.ingredients") }}
@@ -201,6 +224,7 @@
           size="x-large"
           color="primary"
           variant="flat"
+          class="premium-cook__arrow premium-cook__arrow--next"
           :aria-label="$t('premium.next-step')"
           @click="go(1)"
         >
@@ -211,7 +235,7 @@
           size="x-large"
           color="primary"
           variant="flat"
-          class="text-none"
+          class="text-none premium-cook__arrow premium-cook__arrow--next premium-cook__arrow--finish"
           @click="finish"
         >
           {{ $t("premium.finish") }}
@@ -375,6 +399,8 @@ import {
   mdiChevronRight,
   mdiClose,
   mdiFormatListBulleted,
+  mdiFullscreen,
+  mdiFullscreenExit,
   mdiMinus,
   mdiPause,
   mdiPlay,
@@ -546,7 +572,32 @@ function onTouchEnd(e: TouchEvent) {
   if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) go(dx < 0 ? 1 : -1);
 }
 
+// Keep keyboard focus inside Cook mode: Tab past the last button returns to the first, and back
+const cookRoot = ref<HTMLElement | null>(null);
+function trapTab(e: KeyboardEvent) {
+  const root = cookRoot.value;
+  if (!root) return;
+  const items = [...root.querySelectorAll<HTMLElement>("button:not([disabled]), [href], input, [tabindex]:not([tabindex='-1'])")]
+    .filter(el => el.offsetParent !== null || getComputedStyle(el).position === "fixed");
+  if (!items.length) return;
+  const first = items[0]!;
+  const last = items[items.length - 1]!;
+  const active = document.activeElement as HTMLElement | null;
+  if (e.shiftKey && (active === first || !root.contains(active))) {
+    e.preventDefault();
+    last.focus();
+  }
+  else if (!e.shiftKey && (active === last || !root.contains(active))) {
+    e.preventDefault();
+    first.focus();
+  }
+}
+
 function onKey(e: KeyboardEvent) {
+  if (e.key === "Tab" && !ingredientsOpen.value && !timerSheet.open) {
+    trapTab(e);
+    return;
+  }
   const tag = document.activeElement?.tagName;
   if (tag === "INPUT" || tag === "TEXTAREA" || ingredientsOpen.value || timerSheet.open) return;
   if (e.key === "ArrowRight") go(1);
@@ -563,20 +614,69 @@ function setBehindInert(on: boolean) {
   document.querySelectorAll(BEHIND).forEach(el => el.toggleAttribute("inert", on));
 }
 
+// ------------------------------------------------------------ full screen
+// Browsers allow it on Android, iPad and desktop, not on iPhone Safari (there the button is hidden;
+// the installed home-screen app already runs without browser bars). Entering needs a fresh tap,
+// so tapping "Cook Mode" goes full screen on touch devices; opening Cook mode from a link doesn't.
+type FsDocument = Document & { webkitFullscreenElement?: Element | null; webkitExitFullscreen?: () => Promise<void>; webkitFullscreenEnabled?: boolean };
+type FsElement = HTMLElement & { webkitRequestFullscreen?: () => Promise<void> };
+const fsDoc = document as FsDocument;
+const fullscreenSupported = !!(fsDoc.fullscreenEnabled || fsDoc.webkitFullscreenEnabled);
+const isFullscreen = ref(false);
+const enteredFullscreen = ref(false);
+
+function syncFullscreen() {
+  isFullscreen.value = !!(fsDoc.fullscreenElement || fsDoc.webkitFullscreenElement);
+}
+
+async function enterFullscreen() {
+  const el = document.documentElement as FsElement;
+  try {
+    if (el.requestFullscreen) await el.requestFullscreen({ navigationUI: "hide" });
+    else if (el.webkitRequestFullscreen) await el.webkitRequestFullscreen();
+    enteredFullscreen.value = true;
+  }
+  catch { /* refused (no recent tap, or not allowed): stay as is */ }
+}
+
+async function exitFullscreen() {
+  try {
+    if (fsDoc.exitFullscreen && fsDoc.fullscreenElement) await fsDoc.exitFullscreen();
+    else if (fsDoc.webkitExitFullscreen && fsDoc.webkitFullscreenElement) await fsDoc.webkitExitFullscreen();
+  }
+  catch { /* already out */ }
+}
+
+function toggleFullscreen() {
+  if (isFullscreen.value) exitFullscreen();
+  else enterFullscreen();
+}
+
 onMounted(() => {
   window.addEventListener("keydown", onKey);
+  document.addEventListener("fullscreenchange", syncFullscreen);
+  document.addEventListener("webkitfullscreenchange", syncFullscreen);
   document.documentElement.classList.add("premium-cook-open");
   setBehindInert(true);
   if (wakeLock.isSupported.value) {
     wakeLock.request("screen").catch(() => { /* refused: the status line says so */ });
   }
+  // Touch devices (phones, tablets) in a browser tab: go full screen straight away
+  const touch = window.matchMedia("(pointer: coarse)").matches;
+  const installedApp = window.matchMedia("(display-mode: standalone)").matches;
+  if (fullscreenSupported && touch && !installedApp) enterFullscreen();
+  syncFullscreen();
 });
 
 onBeforeUnmount(() => {
   window.removeEventListener("keydown", onKey);
+  document.removeEventListener("fullscreenchange", syncFullscreen);
+  document.removeEventListener("webkitfullscreenchange", syncFullscreen);
   document.documentElement.classList.remove("premium-cook-open");
   setBehindInert(false);
   if (wakeLock.isActive.value) wakeLock.release().catch(() => {});
+  // Leave full screen with Cook mode (only if Cook mode turned it on, or it's still on)
+  if (enteredFullscreen.value || isFullscreen.value) exitFullscreen();
 });
 </script>
 
@@ -774,5 +874,68 @@ onBeforeUnmount(() => {
 .premium-cook__sheet-title {
   font-family: "Playfair Display", Georgia, serif;
   font-size: 1.3rem;
+}
+/* Header ingredients button only on short sideways screens */
+.premium-cook__top-ingredients {
+  display: none !important;
+}
+
+/* Short sideways screens (phones in landscape): the arrows become fixed buttons on the left and
+   right edges, vertically centred and clear of the phone's edges and home bar, so they are always
+   visible and reachable; ingredients move to the header; text a little smaller. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .premium-cook {
+    padding-left: max(84px, calc(env(safe-area-inset-left, 0px) + 76px));
+    padding-right: max(84px, calc(env(safe-area-inset-right, 0px) + 76px));
+  }
+
+  .premium-cook__top {
+    padding: 10px 0 8px;
+  }
+
+  .premium-cook__step {
+    padding: 16px 0 24px;
+    gap: 14px;
+  }
+
+  .premium-cook__text {
+    font-size: 1.3rem;
+  }
+
+  .premium-cook__top-ingredients {
+    display: inline-flex !important;
+  }
+
+  .premium-cook__bottom-ingredients {
+    display: none !important;
+  }
+
+  .premium-cook__nav {
+    padding: 0;
+  }
+
+  .premium-cook__arrow {
+    position: fixed !important;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+  }
+
+  .premium-cook__arrow--prev {
+    left: max(12px, calc(env(safe-area-inset-left, 0px) + 8px));
+  }
+
+  .premium-cook__arrow--next {
+    right: max(12px, calc(env(safe-area-inset-right, 0px) + 8px));
+  }
+
+  .premium-cook__arrow--finish {
+    min-width: 0 !important;
+    padding: 0 14px !important;
+  }
+
+  .premium-cook__awake {
+    display: none;
+  }
 }
 </style>
