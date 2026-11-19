@@ -50,6 +50,7 @@ async function mountSection() {
         VHover: { template: "<div><slot :is-hovering=\"false\" :props=\"{}\" /></div>" },
         VChip: { template: "<button class=\"tag-chip\" type=\"button\"><slot /></button>" },
         RecipeCardImage: true,
+        PremiumRecipeCard: { props: ["recipe"], template: "<article class=\"premium-card-stub\">{{ recipe.name }}</article>" },
         RecipeCardRating: true,
         RecipeFavoriteBadge: true,
         RecipeContextMenu: true,
@@ -85,8 +86,14 @@ describe("RecipeCardSection", () => {
     vi.unstubAllGlobals();
   });
 
+  // Mealie Premium: the grid uses PremiumRecipeCard (photo, title, time; no tag chips)
+  test("grid view renders a Premium card per recipe", async () => {
+    mocks.preferences.value.useMobileCards = false;
+    const wrapper = await mountSection();
+    expect(wrapper.findAll(".premium-card-stub").map(c => c.text())).toEqual(["Soup"]);
+  });
+
   test.each([
-    ["desktop cards", false],
     ["mobile cards", true],
   ])("clicking a tag on %s emits itemSelected", async (_, useMobileCards) => {
     mocks.preferences.value.useMobileCards = useMobileCards;

@@ -309,3 +309,47 @@ html .v-theme--light {
 .v-application .v-table + .v-divider {
   display: none;
 }
+
+// ---------------------------------------------------------------- v0.4.0: Recipes grid
+
+// Photo cards (PremiumRecipeCard) in Mealie's recipe lists: as many ~220px columns as fit, 2 on phones
+.premium-recipe-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+@media (max-width: 599px) {
+  .premium-recipe-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+}
+
+// List badge in the sidebar (items still to buy, all lists together)
+.premium-badge {
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: rgb(var(--v-theme-primary));
+  color: rgb(var(--v-theme-on-primary));
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Recipe list headings ("Recipes", a tag's or collection's name) in the heading font
+.v-application .text-headline-small {
+  font-family: var(--cookbook-serif);
+  font-weight: 600;
+}
+
+// Dark mode: Mealie's dark cards are nearly the page colour, so Premium cards get a faint edge
+.v-theme--dark .premium-card,
+.v-theme--dark .premium-home__card,
+.v-theme--dark .premium-week__day {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08) !important;
+}

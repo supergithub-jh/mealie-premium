@@ -115,27 +115,17 @@
     </v-row>
     <div v-if="recipes && ready">
       <div class="mt-2">
-        <v-row v-if="!useMobileCards">
-          <v-col
+        <!-- Mealie Premium: photo cards in a grid (2 columns on phones) -->
+        <div
+          v-if="!useMobileCards"
+          class="premium-recipe-grid"
+        >
+          <PremiumRecipeCard
             v-for="recipe in recipes"
             :key="recipe.id"
-            :sm="6"
-            :md="6"
-            :lg="4"
-            :xl="3"
-          >
-            <RecipeCard
-              :name="recipe.name"
-              :description="recipe.description!"
-              :slug="recipe.slug"
-              :rating="recipe.rating!"
-              :image="recipe.image!"
-              :tags="recipe.tags"
-              :recipe-id="recipe.id"
-              @item-selected="(item, urlPrefix) => emit('itemSelected', item, urlPrefix)"
-            />
-          </v-col>
-        </v-row>
+            :recipe="recipe"
+          />
+        </div>
         <v-row
           v-else
           density="comfortable"
@@ -177,7 +167,7 @@
 
 <script setup lang="ts">
 import { useThrottleFn } from "@vueuse/core";
-import RecipeCard from "./RecipeCard.vue";
+import PremiumRecipeCard from "~/components/Domain/Premium/PremiumRecipeCard.vue";
 import RecipeCardMobile from "./RecipeCardMobile.vue";
 import type { UrlPrefixParam } from "./RecipeChips.vue";
 import { useLoggedInState } from "~/composables/use-logged-in-state";
@@ -234,7 +224,8 @@ const auth = useMealieAuth();
 const { $globals } = useNuxtApp();
 const { isOwnGroup } = useLoggedInState();
 const useMobileCards = computed(() => {
-  return display.smAndDown.value || preferences.value.useMobileCards;
+  // Mealie Premium: phones get the photo grid too; the list view is the desktop toggle only
+  return !display.smAndDown.value && preferences.value.useMobileCards;
 });
 
 const displayTitleIcon = computed(() => {

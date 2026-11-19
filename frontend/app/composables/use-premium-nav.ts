@@ -88,7 +88,7 @@ export function buildPremiumNav(groupSlug: string, t: Translate, opts: { aiImpor
   const g = `/g/${groupSlug}`;
   const startsWith = (prefix: string) => (path: string) => path === prefix || path.startsWith(`${prefix}/`);
 
-  // Phase 4 gives Home its own page; until then it opens the recipe list.
+  // Home has its own page (phase 4); the recipe list is at /g/<group>/recipes.
   const home: PremiumNavLink = {
     key: "home",
     title: t("general.home"),
@@ -101,9 +101,10 @@ export function buildPremiumNav(groupSlug: string, t: Translate, opts: { aiImpor
     key: "recipes",
     title: t("general.recipes"),
     icon: mdiSilverwareForkKnife,
-    to: g,
+    to: `${g}/recipes`,
     restricted: false,
-    match: path => path.startsWith(`${g}/r/`) && !path.startsWith(`${g}/r/create`),
+    match: path => path === `${g}/recipes` || path === `${g}/recipes/`
+      || (path.startsWith(`${g}/r/`) && !path.startsWith(`${g}/r/create`)),
   };
   const collections: PremiumNavLink = {
     key: "collections",

@@ -27,7 +27,17 @@
         :title="link.title"
         rounded="lg"
         exact
-      />
+      >
+        <template
+          v-if="link.key === 'list' && listBadge"
+          #append
+        >
+          <span
+            class="premium-badge"
+            :aria-label="$t('premium.items-to-buy', [listCount])"
+          >{{ listBadge }}</span>
+        </template>
+      </v-list-item>
 
       <v-list-group
         v-if="moreLinks.length"
@@ -121,10 +131,12 @@
 
 <script setup lang="ts">
 import { mdiCogOutline, mdiDotsHorizontal } from "@mdi/js";
+import { usePremiumListCount } from "~/composables/use-premium-list-count";
 import { usePremiumNav } from "~/composables/use-premium-nav";
 
 const { nav, collections, groupSlug, isActive, inSettings } = usePremiumNav();
 
+const { badge: listBadge, count: listCount } = usePremiumListCount();
 const homeLink = computed(() => (groupSlug.value ? `/g/${groupSlug.value}` : "/"));
 const moreLinks = computed(() => [...nav.value.more, ...collections.value]);
 </script>

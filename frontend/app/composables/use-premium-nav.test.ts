@@ -53,12 +53,15 @@ describe("Premium navigation", () => {
   test("Home and Recipes are never active at the same time", () => {
     const home = nav.sidebar.find(l => l.key === "home")!;
     const recipes = nav.sidebar.find(l => l.key === "recipes")!;
-    for (const p of ["/g/demo-group", "/g/demo-group/r/lemon-herb-salmon"]) {
+    for (const p of ["/g/demo-group", "/g/demo-group/recipes", "/g/demo-group/r/lemon-herb-salmon"]) {
       expect(home.match!(p) && recipes.match!(p)).toBe(false);
     }
     expect(home.match!("/g/demo-group")).toBe(true);
     expect(recipes.match!("/g/demo-group/r/lemon-herb-salmon")).toBe(true);
     expect(recipes.match!("/g/demo-group/r/create/url")).toBe(false);
+    expect(recipes.to).toBe("/g/demo-group/recipes");
+    expect(recipes.match!("/g/demo-group/recipes")).toBe(true);
+    expect(recipes.match!("/g/demo-group/recipes/tags")).toBe(false);
   });
 
   test("Settings menu keeps Mealie's three entries, shown by permission", () => {
