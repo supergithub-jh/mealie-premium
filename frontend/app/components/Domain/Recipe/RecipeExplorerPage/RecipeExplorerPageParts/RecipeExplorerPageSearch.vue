@@ -1,7 +1,7 @@
 <template>
   <div class="search-container pb-8">
     <form
-      class="search-box pa-2"
+      class="search-box pa-2 premium-filter-bar"
       @submit.prevent="search"
     >
       <div class="d-flex justify-center mb-2">
@@ -23,6 +23,7 @@
         <v-menu
           offset-y
           nudge-bottom="3"
+          content-class="premium-filter-menu"
         >
           <template #activator="{ props }">
             <v-btn
@@ -81,6 +82,7 @@
           start
           nudge-bottom="3"
           :close-on-content-click="false"
+          content-class="premium-filter-menu"
         >
           <template #activator="{ props }">
             <v-btn

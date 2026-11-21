@@ -20,7 +20,7 @@
     <v-container v-if="state.ready">
       <v-row>
         <v-col :cols="useMobile ? 12 : 3">
-          <v-container class="ma-0 pa-0">
+          <v-container class="ma-0 pa-0 premium-filter-bar">
             <v-row no-gutters>
               <v-col
                 cols="12"
@@ -117,6 +117,7 @@
                   offset-y
                   nudge-bottom="3"
                   :close-on-content-click="false"
+                  content-class="premium-filter-menu"
                 >
                   <template #activator="{ props }">
                     <v-btn
@@ -194,7 +195,7 @@
               no-gutters
               class="mt-5"
             >
-              <v-card-title class="ma-0 pa-0">
+              <v-card-title class="ma-0 pa-0 premium-section-title">
                 {{ $t("recipe-finder.selected-ingredients") }}
               </v-card-title>
               <v-container
@@ -255,7 +256,7 @@
               no-gutters
               class="mt-5"
             >
-              <v-card-title class="ma-0 pa-0">
+              <v-card-title class="ma-0 pa-0 premium-section-title">
                 {{ $t("recipe-finder.selected-tools") }}
               </v-card-title>
               <v-container class="ma-0 pa-0">
@@ -387,7 +388,7 @@
                 cols="12"
                 class="d-flex flex-column justify-center align-center ga-1"
               >
-                <v-card-title class="ma-0 pa-0">
+                <v-card-title class="ma-0 pa-0 premium-section-title">
                   {{ $t("recipe-finder.no-recipes-found") }}
                 </v-card-title>
                 <v-card-text class="ma-0 pa-0 text-center">
