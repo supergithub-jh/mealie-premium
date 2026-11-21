@@ -1,4 +1,4 @@
-# Mealie Premium (Digital Cookbook): Project Handoff (v0.4.1)
+# Mealie Premium (Digital Cookbook): Project Handoff (v0.4.2)
 
 Handoff for Claude Code working in this fork. Written 2026-11-14, updated 2026-11-16 (changelog at the end).
 Loaded automatically: the first line of the root `CLAUDE.md` is `@cookbook/HANDOFF.md`.
@@ -196,10 +196,12 @@ The Import screen gets Link / Photo / Video options. iOS can't share into a web 
 - Phase 4 ships in two steps: v0.4.0 Home, Recipes grid and list badge (released together with v0.3.3), then v0.4.1 Planner and Shopping list.
 - Home: Recipe of the Week first on phones, then Tonight; Tonight is dinner only; the list badge counts all lists together; the Browse chips are automatic with an Edit panel, saved per browser (option A, no backend change).
 - Planner (v0.4.1): week view, one card per day (desktop 7 columns, phone one column), dinner always has a slot, other meal types only when planned, "+ Add" per day, no "Fill empty dinners" button.
+- Background stays plain Ivory (v0.4.2); whitewashed-wood textures were tried and not adopted, possibly revisited later with a real photo.
 - Shopping list (v0.4.1): add box at the bottom above the tab bar on phones; no recipe tags on items; a ticked item stays crossed out for a few seconds (undo) before moving to Done.
 
 ## 11. Changelog
 
+- **v0.4.2** (2026-11-21): QA batch: one filter-bar look on Recipes and Recipe Finder (sage 44px chips, olive with a count when in use, quiet sort/settings, pill search, filter menus restyled; class hooks `premium-filter-bar` / `premium-filter-menu` / `premium-section-title` in upstream `RecipeExplorerPageSearch.vue`, `SearchFilter.vue`, `recipes/finder/index.vue`). Wood background explored in mockups (owner's private "Mealie Premium Background Options" page), not adopted: the page stays plain Ivory. Multiple labels per item: won't fix (Mealie stores one label per item; needs backend).
 - **v0.4.1** (2026-11-21): phase 4, step 2: Meal Planner week view (day cards, week strip, Today button) and Shopping list (grouped by label, delayed tick with undo, Done section, item editor panel, recipes panel, list cards with progress); first build reviewed with the design stack.
 - **v0.4.0** (2026-11-19; tooling added 2026-11-21: design stack copied into `.claude/skills/`, project profile `.claude/design-stack.md`, `premium-design-review` now runs it): phase 4, step 1: Home page (Recipe of the Week, Tonight with Cook Mode / Plan tonight / Surprise me, This week, Browse chips with Edit panel, Recently added); Recipes page at `/g/<group>/recipes` with photo cards (`PremiumRecipeCard`), 2 columns on phones; old filtered links redirect there; List badge (items to buy, all lists) in the sidebar and tab bar; recipe list headings in Playfair; faint card edges in dark mode.
 - **v0.3.3** (2026-11-19): iPhone sideways Cook mode: arrows and Finish now respond (they were `position: fixed` inside the scrolling Cook mode box, which iOS Safari draws but doesn't tap; now the step text scrolls and the arrows are absolute); admin/settings boxes standardised in `cookbook.scss`: section headings in Playfair with olive icons, 16px padding on list rows in boxes, same soft shadow on flat cards, tables and status boxes, no stray line under tables.
