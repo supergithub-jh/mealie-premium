@@ -90,6 +90,10 @@
           </v-card>
         </v-menu>
         <v-btn :icon="$globals.icons.chevronRight" flat rounded="md" density="comfortable" @click="() => changeWeek(1)" />
+        <!-- Mealie Premium: back to the current week -->
+        <v-btn variant="text" color="primary" class="text-none" @click="goToday">
+          {{ $t("premium.today") }}
+        </v-btn>
       </div>
       <v-btn-toggle
         v-model="mealPlanPreferences.mode"
@@ -285,6 +289,10 @@ function changeWeek(step: number) {
     addDays(start, step * stepSize),
     addDays(end, step * stepSize),
   ];
+}
+
+function goToday() {
+  state.value.range = [defaultStartDate(), defaultEndDate()];
 }
 
 watch(isDaysMode, () => {

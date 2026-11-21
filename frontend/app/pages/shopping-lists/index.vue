@@ -55,76 +55,84 @@
     >
       <v-card-text>{{ $t('shopping-list.are-you-sure-you-want-to-delete-this-item') }}</v-card-text>
     </BaseDialog>
-    <BasePageTitle divider>
-      <template #header>
-        <v-img
-          width="100%"
-          max-height="100"
-          max-width="100"
-          src="/svgs/shopping-cart.svg"
-        />
-      </template>
-      <template #title>
+    <!-- Mealie Premium (v0.4.1): title row and one card per list with what's left to buy -->
+    <div class="premium-lists__head">
+      <h1 class="premium-lists__title">
         {{ $t('shopping-list.shopping-lists') }}
-      </template>
-    </BasePageTitle>
-
-    <v-container class="d-flex align-center justify-end px-0 pt-0 pb-4">
-      <v-checkbox
-        v-model="preferences.viewAllLists"
-        hide-details
-        :label="$t('general.show-all')"
-        class="my-0 mr-4"
-      />
-      <BaseButton
-        create
-        class="my-0"
+      </h1>
+      <v-btn
+        color="primary"
+        variant="flat"
+        class="text-none"
+        :prepend-icon="$globals.icons.createAlt"
         @click="state.createDialog = true"
-      />
-    </v-container>
+      >
+        {{ $t('shopping-list.new-list') }}
+      </v-btn>
+    </div>
+    <v-checkbox
+      v-model="preferences.viewAllLists"
+      hide-details
+      density="compact"
+      :label="$t('general.show-all')"
+      class="mb-2"
+    />
 
-    <v-container v-if="!shoppingListChoices.length">
-      <BasePageTitle>
-        <template #title>
-          {{ $t('shopping-list.no-shopping-lists-found') }}
-        </template>
-      </BasePageTitle>
-    </v-container>
+    <p
+      v-if="!shoppingListChoices.length"
+      class="premium-lists__empty"
+    >
+      {{ $t('shopping-list.no-shopping-lists-found') }}
+    </p>
 
-    <section>
-      <v-card
+    <section class="premium-lists">
+      <NuxtLink
         v-for="list in shoppingListChoices"
         :key="list.id"
-        class="my-2 left-border"
         :to="`/shopping-lists/${list.id}`"
+        class="premium-lists__card"
       >
-        <v-card-title class="d-flex align-center">
-          <v-icon class="mr-2">
-            {{ $globals.icons.cartCheck }}
-          </v-icon>
-          <span class="flex-grow-1 text-truncate">
-            {{ list.name }}
+        <div class="premium-lists__row">
+          <span class="premium-lists__name">{{ list.name }}</span>
+          <span
+            v-if="listCounts[list.id]"
+            class="premium-lists__count"
+            :class="{ 'premium-lists__count--done': !listCounts[list.id]!.open }"
+          >
+            {{ listCounts[list.id]!.open ? $t('premium.to-buy', [listCounts[list.id]!.open]) : $t('premium.all-done') }}
           </span>
           <v-btn
             icon
-            variant="plain"
+            variant="text"
+            size="small"
+            :aria-label="$t('user.edit-user')"
             @click.prevent="toggleOwnerDialog(list)"
           >
-            <v-icon>
-              {{ $globals.icons.user }}
-            </v-icon>
+            <v-icon>{{ $globals.icons.user }}</v-icon>
           </v-btn>
           <v-btn
             icon
-            variant="plain"
+            variant="text"
+            size="small"
+            :aria-label="$t('general.delete')"
             @click.prevent="openDelete(list.id)"
           >
-            <v-icon>
-              {{ $globals.icons.delete }}
-            </v-icon>
+            <v-icon>{{ $globals.icons.delete }}</v-icon>
           </v-btn>
-        </v-card-title>
-      </v-card>
+        </div>
+        <div
+          class="premium-lists__progress"
+          aria-hidden="true"
+        >
+          <div :style="{ width: `${listProgress(list.id)}%` }" />
+        </div>
+        <div
+          v-if="list.recipeReferences?.length"
+          class="premium-lists__muted"
+        >
+          {{ $t('shopping-list.linked-recipes-count', list.recipeReferences.length) }}
+        </div>
+      </NuxtLink>
     </section>
   </v-container>
 </template>
@@ -209,6 +217,26 @@ async function fetchShoppingLists() {
   return data.items;
 }
 
+// Mealie Premium: items left / done per list, for the cards (two small requests per list)
+const listCounts = ref<Record<string, { open: number; done: number }>>({});
+async function loadCounts(lists: ShoppingListOut[]) {
+  const results = await Promise.all(lists.map(async (list) => {
+    const filter = (checked: boolean) => `shoppingListId = "${list.id}" AND checked = ${checked}`;
+    const [open, done] = await Promise.all([
+      userApi.shopping.items.getAll(1, 1, { queryFilter: filter(false) }),
+      userApi.shopping.items.getAll(1, 1, { queryFilter: filter(true) }),
+    ]);
+    return [list.id, { open: open.data?.total ?? 0, done: done.data?.total ?? 0 }] as const;
+  }));
+  listCounts.value = Object.fromEntries(results);
+}
+watch(shoppingListChoices, lists => loadCounts(lists), { immediate: true });
+function listProgress(id: string) {
+  const c = listCounts.value[id];
+  if (!c || !(c.open + c.done)) return 0;
+  return Math.round((c.done / (c.open + c.done)) * 100);
+}
+
 async function refresh() {
   shoppingLists.value = await fetchShoppingLists();
 }
@@ -282,3 +310,95 @@ async function deleteOne() {
   }
 }
 </script>
+
+<style scoped>
+.premium-lists__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.premium-lists__title {
+  flex: 1;
+  margin: 0;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.premium-lists {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.premium-lists__card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 12px 16px 20px;
+  border-radius: 20px;
+  background: rgb(var(--v-theme-surface));
+  box-shadow: var(--cookbook-shadow, 0 4px 16px rgba(50, 44, 37, 0.06));
+  color: inherit;
+  text-decoration: none;
+}
+
+.v-theme--dark .premium-lists__card {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.premium-lists__card:hover,
+.premium-lists__card:focus-visible {
+  outline: 2px solid rgba(var(--v-theme-primary), 0.5);
+  outline-offset: -2px;
+}
+
+.premium-lists__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.premium-lists__name {
+  flex: 1;
+  min-width: 0;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 1.3rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.premium-lists__count {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: rgb(var(--v-theme-primary));
+  white-space: nowrap;
+}
+
+.premium-lists__count--done,
+.premium-lists__muted,
+.premium-lists__empty {
+  color: rgba(var(--v-theme-on-surface), 0.72);
+  font-weight: 500;
+}
+
+.premium-lists__muted {
+  font-size: 0.85rem;
+}
+
+.premium-lists__progress {
+  height: 6px;
+  margin-right: 8px;
+  border-radius: 999px;
+  background: var(--premium-soft);
+  overflow: hidden;
+}
+
+.premium-lists__progress > div {
+  height: 100%;
+  border-radius: 999px;
+  background: rgb(var(--v-theme-primary));
+}
+</style>
