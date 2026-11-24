@@ -41,7 +41,7 @@
         class="premium-photo__label"
       >{{ $t("premium.no-photo") }}</span>
       <v-btn
-        v-if="PREMIUM_FEATURES.aiImages && canGenerate"
+        v-if="canGenerate && !generating"
         size="small"
         color="primary"
         variant="flat"
@@ -52,13 +52,26 @@
         {{ $t("premium.generate-image") }}
       </v-btn>
     </div>
+    <!-- While the AI helper makes a photo (up to a minute) -->
+    <div
+      v-if="generating"
+      class="premium-photo__busy"
+      role="status"
+      aria-live="polite"
+    >
+      <v-progress-circular
+        indeterminate
+        :size="compact ? 28 : 40"
+        width="3"
+      />
+      <span v-if="!compact">{{ $t("premium.generating-image") }}</span>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { mdiAutoFix, mdiChefHat } from "@mdi/js";
 import { useStaticRoutes } from "~/composables/api";
-import { PREMIUM_FEATURES } from "~/composables/use-premium-features";
 import type { RecipeOut, RecipeSummary } from "~/lib/api/types/recipe";
 
 const props = withDefaults(defineProps<{
@@ -66,12 +79,15 @@ const props = withDefaults(defineProps<{
   imageKey?: number;
   aspect?: string;
   compact?: boolean;
+  /** Show "Generate image with AI" on the placeholder (the parent checks the helper and permissions) */
   canGenerate?: boolean;
+  generating?: boolean;
 }>(), {
   imageKey: 1,
   aspect: "4 / 3",
   compact: false,
   canGenerate: false,
+  generating: false,
 });
 defineEmits<{ generate: [] }>();
 
@@ -124,6 +140,22 @@ watch(src, () => { failed.value = false; });
 
 .premium-photo__hat {
   opacity: 0.85;
+}
+
+.premium-photo__busy {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  /* soft tint over a solid surface, so the placeholder underneath doesn't show through */
+  background: linear-gradient(var(--premium-soft), var(--premium-soft)), rgb(var(--v-theme-surface));
+  color: rgb(var(--v-theme-on-surface));
+  font-weight: 500;
+  text-align: center;
+  padding: 16px;
 }
 
 .premium-photo__label {

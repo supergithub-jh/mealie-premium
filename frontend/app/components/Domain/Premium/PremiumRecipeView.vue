@@ -3,11 +3,50 @@
   <div class="premium-recipe d-print-none">
     <div class="premium-recipe__grid">
       <div class="premium-recipe__media">
-        <PremiumRecipeImage
-          :recipe="recipe"
-          :image-key="imageKey"
-          :can-generate="canEditRecipe"
-        />
+        <div class="premium-recipe__photo">
+          <PremiumRecipeImage
+            :recipe="recipe"
+            :image-key="imageKey"
+            :can-generate="canUseAiImages"
+            :generating="generatingImage"
+            @generate="generateAiImage"
+          />
+          <!-- AI photo menu (only when the AI helper is installed and you may edit this recipe) -->
+          <v-menu
+            v-if="canUseAiImages && recipe.image && !generatingImage"
+            location="bottom end"
+          >
+            <template #activator="{ props: menuProps }">
+              <v-btn
+                v-bind="menuProps"
+                icon
+                variant="flat"
+                class="premium-recipe__photo-menu"
+                :aria-label="$t('premium.photo-options')"
+              >
+                <v-icon :icon="mdiAutoFix" />
+              </v-btn>
+            </template>
+            <v-list class="premium-menu">
+              <v-list-item
+                :prepend-icon="mdiAutoFix"
+                :title="aiImageState?.aiImage ? $t('premium.regenerate-image') : $t('premium.replace-with-ai-image')"
+                @click="generateAiImage"
+              />
+              <v-list-item
+                v-if="aiImageState?.canRevert"
+                :prepend-icon="mdiUndo"
+                :title="$t('premium.revert-image')"
+                @click="revertAiImage"
+              />
+              <v-list-item
+                :prepend-icon="mdiPencilOutline"
+                :title="$t('premium.upload-own-photo')"
+                @click="setMode(PageMode.EDIT)"
+              />
+            </v-list>
+          </v-menu>
+        </div>
         <v-btn
           v-if="hasSteps"
           block
@@ -269,6 +308,7 @@
 
 <script setup lang="ts">
 import {
+  mdiAutoFix,
   mdiCartPlus,
   mdiChefHat,
   mdiClockOutline,
@@ -276,6 +316,7 @@ import {
   mdiOpenInNew,
   mdiPencilOutline,
   mdiSilverwareForkKnife,
+  mdiUndo,
 } from "@mdi/js";
 import RecipeAssets from "~/components/Domain/Recipe/RecipeAssets.vue";
 import RecipeContextMenu from "~/components/Domain/Recipe/RecipeContextMenu/RecipeContextMenu.vue";
@@ -296,6 +337,8 @@ import { useRecipeTime } from "~/composables/recipes/use-recipe-time";
 import { PageMode, usePageState, usePageUser } from "~/composables/recipe-page/shared-state";
 import { useAddToShoppingListDialog } from "~/composables/shopping-list-page/use-add-to-shopping-list-dialog";
 import { useLoggedInState } from "~/composables/use-logged-in-state";
+import { aiHelperError, useAiHelper, type AiImageState } from "~/composables/use-premium-ai-helper";
+import { alert } from "~/composables/use-toast";
 import { cookStepStorageKey } from "~/composables/use-premium-cook";
 import { formatQuantity } from "~/composables/use-premium-quantity";
 import type { HouseholdSummary } from "~/lib/api/types/household";
@@ -330,6 +373,52 @@ if (user?.id && recipe.value.householdId) {
   });
 }
 const { canEditRecipe } = useRecipePermissions(recipe.value, recipeHousehold, user);
+
+// AI photos (phase 5): through the AI helper; hidden when it isn't installed
+const ai = useAiHelper();
+const canUseAiImages = computed(() => ai.imagesReady.value && isOwnGroup.value && canEditRecipe.value);
+const aiImageState = ref<AiImageState | null>(null);
+const generatingImage = ref(false);
+watch(canUseAiImages, async (ready) => {
+  if (ready) aiImageState.value = await ai.imageState(recipe.value.slug);
+}, { immediate: true });
+
+async function reloadPhoto() {
+  const { data } = await useUserApi().recipes.getOne(recipe.value.slug);
+  if (data) {
+    recipe.value.image = data.image;
+    recipe.value.tags = data.tags;
+  }
+  imageKey.value++;
+  aiImageState.value = await ai.imageState(recipe.value.slug);
+}
+
+async function generateAiImage() {
+  if (generatingImage.value) return;
+  generatingImage.value = true;
+  try {
+    await ai.generateImage(recipe.value.slug);
+    await reloadPhoto();
+    alert.success(i18n.t("premium.ai-image-done"));
+  }
+  catch (err) {
+    alert.error(aiHelperError(err, i18n.t("premium.ai-image-failed")));
+  }
+  finally {
+    generatingImage.value = false;
+  }
+}
+
+async function revertAiImage() {
+  try {
+    await ai.revertImage(recipe.value.slug);
+    await reloadPhoto();
+    alert.success(i18n.t("premium.ai-image-reverted"));
+  }
+  catch (err) {
+    alert.error(aiHelperError(err, i18n.t("premium.ai-image-failed")));
+  }
+}
 
 const timeItems = computed(() => {
   const r = recipe.value;
@@ -479,6 +568,18 @@ async function openShoppingList() {
   font-family: "Playfair Display", Georgia, serif;
   font-size: 1.1rem;
   margin: 0 0 10px;
+}
+
+.premium-recipe__photo {
+  position: relative;
+}
+
+.premium-recipe__photo-menu {
+  position: absolute !important;
+  top: 12px;
+  right: 12px;
+  background: rgba(var(--v-theme-surface), 0.92) !important;
+  color: rgb(var(--v-theme-primary)) !important;
 }
 
 /* Photo: always 4:3, cropped to fit (never stretched), on every screen. */
